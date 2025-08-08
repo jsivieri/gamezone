@@ -415,40 +415,67 @@
                     hard: { cellsToRemove: 60, name: 'Difícil' }
                 };
 
+                // Aguardar DOM estar pronto antes de configurar
+                if (document.readyState === 'loading') {
+                    document.addEventListener('DOMContentLoaded', () => {
+                        this.initialize();
+                    });
+                } else {
+                    this.initialize();
+                }
+            }
+
+            initialize() {
                 this.initializeGame();
                 this.setupEventListeners();
             }
 
             setupEventListeners() {
+                // Verificar se os elementos existem antes de adicionar listeners
+                
                 // Botões de dificuldade
                 document.querySelectorAll('.btn-level').forEach(btn => {
                     btn.addEventListener('click', (e) => {
                         document.querySelectorAll('.btn-level').forEach(b => b.classList.remove('active'));
                         e.target.classList.add('active');
                         this.difficulty = e.target.dataset.level;
-                        document.getElementById('difficulty').textContent = this.difficultySettings[this.difficulty].name;
+                        const difficultyElement = document.getElementById('difficulty');
+                        if (difficultyElement) {
+                            difficultyElement.textContent = this.difficultySettings[this.difficulty].name;
+                        }
                     });
                 });
 
                 // Botão novo jogo
-                document.getElementById('newGame').addEventListener('click', () => {
-                    this.newGame();
-                });
+                const newGameBtn = document.getElementById('newGame');
+                if (newGameBtn) {
+                    newGameBtn.addEventListener('click', () => {
+                        this.newGame();
+                    });
+                }
 
                 // Botão verificar
-                document.getElementById('checkSolution').addEventListener('click', () => {
-                    this.checkSolution();
-                });
+                const checkBtn = document.getElementById('checkSolution');
+                if (checkBtn) {
+                    checkBtn.addEventListener('click', () => {
+                        this.checkSolution();
+                    });
+                }
 
                 // Botão dica
-                document.getElementById('getHint').addEventListener('click', () => {
-                    this.getHint();
-                });
+                const hintBtn = document.getElementById('getHint');
+                if (hintBtn) {
+                    hintBtn.addEventListener('click', () => {
+                        this.getHint();
+                    });
+                }
 
                 // Teclado numérico
                 document.querySelectorAll('.number-btn').forEach(btn => {
                     btn.addEventListener('click', (e) => {
+                        e.preventDefault();
                         const number = parseInt(e.target.dataset.number);
+                        console.log('Botão clicado:', number); // Debug
                         this.inputNumber(number);
                     });
                 });
@@ -456,6 +483,7 @@
                 // Teclado físico
                 document.addEventListener('keydown', (e) => {
                     if (e.key >= '1' && e.key <= '9') {
+                        console.log('Tecla pressionada:', e.key); // Debug
                         this.inputNumber(parseInt(e.key));
                     } else if (e.key === 'Delete' || e.key === 'Backspace') {
                         this.inputNumber(0);
@@ -560,26 +588,40 @@
             }
 
             isValidMove(row, col, num) {
+                console.log('Verificando movimento válido:', row, col, num);
+                console.log('Grid atual:', this.grid);
+                
                 // Verificar linha
                 for (let c = 0; c < 9; c++) {
-                    if (this.grid[row][c] === num) return false;
+                    if (this.grid[row][c] === num) {
+                        console.log('Número já existe na linha', row, 'coluna', c);
+                        return false;
+                    }
                 }
                 
                 // Verificar coluna
                 for (let r = 0; r < 9; r++) {
-                    if (this.grid[r][col] === num) return false;
+                    if (this.grid[r][col] === num) {
+                        console.log('Número já existe na coluna', col, 'linha', r);
+                        return false;
+                    }
                 }
                 
                 // Verificar quadrante 3x3
                 const boxRow = Math.floor(row / 3) * 3;
                 const boxCol = Math.floor(col / 3) * 3;
+                console.log('Verificando quadrante:', boxRow, boxCol);
                 
                 for (let r = boxRow; r < boxRow + 3; r++) {
                     for (let c = boxCol; c < boxCol + 3; c++) {
-                        if (this.grid[r][c] === num) return false;
+                        if (this.grid[r][c] === num) {
+                            console.log('Número já existe no quadrante na posição', r, c);
+                            return false;
+                        }
                     }
                 }
                 
+                console.log('Movimento válido!');
                 return true;
             }
 
@@ -628,10 +670,22 @@
             }
 
             inputNumber(number) {
-                if (!this.selectedCell || !this.isGameActive) return;
+                console.log('inputNumber chamada:', number, 'célula selecionada:', this.selectedCell, 'jogo ativo:', this.isGameActive);
+                
+                if (!this.selectedCell || !this.isGameActive) {
+                    console.log('Condições não atendidas - selectedCell:', this.selectedCell, 'isGameActive:', this.isGameActive);
+                    return;
+                }
                 
                 const { row, col, index } = this.selectedCell;
                 const cell = document.querySelector(`[data-index="${index}"]`);
+                
+                if (!cell) {
+                    console.log('Célula não encontrada:', index);
+                    return;
+                }
+                
+                console.log('Inserindo número', number, 'na posição', row, col);
                 
                 // Limpar classes de erro
                 cell.classList.remove('error');
@@ -640,11 +694,13 @@
                     // Apagar número
                     this.grid[row][col] = 0;
                     cell.textContent = '';
+                    console.log('Número apagado');
                 } else {
                     // Verificar se o movimento é válido
                     if (this.isValidMove(row, col, number)) {
                         this.grid[row][col] = number;
                         cell.textContent = number;
+                        console.log('Número inserido com sucesso');
                         
                         // Verificar vitória
                         if (this.isSolved()) {
@@ -652,6 +708,7 @@
                         }
                     } else {
                         // Mostrar erro
+                        console.log('Movimento inválido');
                         cell.classList.add('error');
                         setTimeout(() => {
                             cell.classList.remove('error');
@@ -825,7 +882,9 @@
 
         // Iniciar quando a página carregar
         document.addEventListener('DOMContentLoaded', () => {
-            game = new SudokuGame();
+            setTimeout(() => {
+                game = new SudokuGame();
+            }, 100);
         });
     </script>
 </body>

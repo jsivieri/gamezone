@@ -1,0 +1,440 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Courier New', monospace;
+    background: linear-gradient(45deg, #2d5016, #4a7c23, #2d5016);
+    background-size: 300% 300%;
+    animation: grassWave 8s ease infinite;
+    overflow: hidden;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+@keyframes grassWave {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+}
+
+.game-container {
+    width: 100%;
+    height: 100vh;
+    position: relative;
+    background: rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(76, 175, 80, 0.3);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.8);
+}
+
+.screen.active {
+    display: flex;
+}
+
+/* Menu Principal */
+.menu-content {
+    text-align: center;
+    color: #4caf50;
+    padding: 20px;
+}
+
+.game-title {
+    font-size: 3.5rem;
+    font-weight: bold;
+    margin-bottom: 10px;
+    text-shadow: 0 0 20px #4caf50, 0 0 40px #4caf50;
+    animation: frogGlow 2s ease-in-out infinite alternate;
+}
+
+@keyframes frogGlow {
+    from { text-shadow: 0 0 20px #4caf50, 0 0 40px #4caf50; }
+    to { text-shadow: 0 0 30px #4caf50, 0 0 60px #4caf50, 0 0 80px #81c784; }
+}
+
+.game-subtitle {
+    font-size: 1.2rem;
+    margin-bottom: 30px;
+    color: #ffffff;
+    opacity: 0.8;
+}
+
+.menu-options {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+.menu-btn {
+    background: linear-gradient(45deg, #4caf50, #8bc34a);
+    border: 2px solid #4caf50;
+    color: white;
+    padding: 15px 30px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+    font-family: 'Courier New', monospace;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.menu-btn:hover {
+    background: linear-gradient(45deg, #8bc34a, #aed581);
+    box-shadow: 0 0 20px rgba(76, 175, 80, 0.5);
+    transform: translateY(-2px);
+}
+
+.menu-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 0 10px rgba(76, 175, 80, 0.3);
+}
+
+.game-info {
+    color: #cccccc;
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+/* Instruções e outras telas */
+.instructions-content, .scores-content, .pause-content, .game-over-content, .level-complete-content {
+    text-align: center;
+    color: #4caf50;
+    padding: 20px;
+    max-width: 600px;
+}
+
+.instructions-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin: 30px 0;
+    text-align: left;
+}
+
+.instruction-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+    background: rgba(76, 175, 80, 0.1);
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid rgba(76, 175, 80, 0.3);
+}
+
+.instruction-icon {
+    font-size: 1.5rem;
+    min-width: 30px;
+}
+
+.instruction-item p {
+    color: #ffffff;
+    line-height: 1.4;
+    margin: 0;
+}
+
+/* Recordes */
+.scores-list {
+    margin: 20px 0;
+    background: rgba(76, 175, 80, 0.1);
+    border-radius: 10px;
+    padding: 20px;
+    min-height: 200px;
+}
+
+.score-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+    margin-bottom: 5px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 5px;
+    color: #ffffff;
+}
+
+.score-rank {
+    color: #ffd700;
+    font-weight: bold;
+}
+
+/* HUD do Jogo */
+.game-hud {
+    position: absolute;
+    top: 10px;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: space-around;
+    z-index: 10;
+    padding: 0 20px;
+}
+
+.hud-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(0, 0, 0, 0.7);
+    padding: 8px 15px;
+    border-radius: 20px;
+    border: 2px solid #4caf50;
+    color: #4caf50;
+    font-weight: bold;
+    text-shadow: 0 0 10px #4caf50;
+}
+
+.hud-label {
+    font-size: 0.9rem;
+}
+
+/* Barra de Tempo */
+.time-bar {
+    width: 100px;
+    height: 10px;
+    background: rgba(255, 0, 0, 0.3);
+    border-radius: 5px;
+    overflow: hidden;
+    border: 1px solid #ffffff;
+}
+
+.time-level {
+    height: 100%;
+    background: linear-gradient(90deg, #ff0000, #ffff00, #00ff00);
+    border-radius: 5px;
+    transition: width 0.3s ease;
+    width: 100%;
+}
+
+/* Canvas do Jogo */
+#gameCanvas {
+    display: block;
+    margin: 0 auto;
+    border: 3px solid #4caf50;
+    border-radius: 10px;
+    background: #87ceeb;
+    box-shadow: 0 0 30px rgba(76, 175, 80, 0.3);
+    margin-top: 80px;
+}
+
+.game-controls {
+    position: absolute;
+    bottom: 60px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    color: #cccccc;
+    font-size: 0.9rem;
+    background: rgba(0, 0, 0, 0.5);
+    padding: 8px;
+    border-radius: 5px;
+    margin: 0 20px;
+}
+
+/* Controles Mobile */
+.mobile-controls {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: none;
+}
+
+.control-row {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin: 5px 0;
+}
+
+.control-btn {
+    background: rgba(76, 175, 80, 0.8);
+    border: 2px solid #4caf50;
+    color: white;
+    width: 50px;
+    height: 50px;
+    border-radius: 10px;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    user-select: none;
+}
+
+.control-btn:hover {
+    background: rgba(76, 175, 80, 1);
+    transform: scale(1.1);
+}
+
+.control-btn:active {
+    transform: scale(0.95);
+    background: rgba(76, 175, 80, 0.6);
+}
+
+/* Game Over */
+.game-over-title {
+    font-size: 3rem;
+    color: #ff5722;
+    text-shadow: 0 0 20px #ff5722;
+    margin-bottom: 20px;
+    animation: gameOverPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes gameOverPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+.final-stats, .level-stats {
+    background: rgba(76, 175, 80, 0.1);
+    padding: 20px;
+    border-radius: 10px;
+    margin: 20px 0;
+    border: 1px solid rgba(76, 175, 80, 0.3);
+}
+
+.final-stats p, .level-stats p {
+    color: #ffffff;
+    font-size: 1.2rem;
+    margin: 10px 0;
+}
+
+/* Nível Completo */
+.level-complete-title {
+    font-size: 2.5rem;
+    color: #ffd700;
+    text-shadow: 0 0 20px #ffd700;
+    margin-bottom: 20px;
+    animation: levelCompleteGlow 2s ease-in-out infinite alternate;
+}
+
+@keyframes levelCompleteGlow {
+    from { text-shadow: 0 0 20px #ffd700; }
+    to { text-shadow: 0 0 40px #ffd700, 0 0 60px #ffeb3b; }
+}
+
+.new-record {
+    background: linear-gradient(45deg, #ffd700, #ffff00);
+    color: #000000;
+    padding: 15px;
+    border-radius: 10px;
+    font-weight: bold;
+    font-size: 1.3rem;
+    margin: 20px 0;
+    animation: recordBounce 0.5s ease-in-out infinite alternate;
+}
+
+.new-record.hidden {
+    display: none;
+}
+
+@keyframes recordBounce {
+    from { transform: translateY(-5px); }
+    to { transform: translateY(5px); }
+}
+
+.game-over-options {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 30px;
+}
+
+/* Pausa */
+.pause-content h2 {
+    font-size: 2.5rem;
+    margin-bottom: 30px;
+    text-shadow: 0 0 20px #4caf50;
+}
+
+.pause-options {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* Responsividade */
+@media (max-width: 900px) {
+    #gameCanvas {
+        width: 90%;
+        height: auto;
+        max-width: 700px;
+    }
+    
+    .game-title {
+        font-size: 2.5rem;
+    }
+    
+    .game-hud {
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+    
+    .mobile-controls {
+        display: block;
+    }
+    
+    .game-controls {
+        bottom: 120px;
+    }
+}
+
+@media (max-width: 600px) {
+    .game-title {
+        font-size: 2rem;
+    }
+    
+    .menu-btn {
+        padding: 12px 25px;
+        font-size: 1rem;
+    }
+    
+    .instruction-item {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .game-over-title, .level-complete-title {
+        font-size: 2rem;
+    }
+    
+    .game-hud {
+        flex-direction: column;
+        align-items: center;
+        gap: 5px;
+    }
+}
+
+/* Animações especiais do jogo */
+@keyframes hop {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+}
+
+.frog-hop {
+    animation: hop 0.2s ease-in-out;
+}
+
+@keyframes splash {
+    0% { transform: scale(1); opacity: 1; }
+    100% { transform: scale(2); opacity: 0; }
+}
+
+.splash-effect {
+    animation: splash 0.5s ease-out;
+}

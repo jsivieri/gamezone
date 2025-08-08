@@ -54,11 +54,9 @@
 
         .particle {
             position: absolute;
-            width: 6px;
-            height: 6px;
-            background: rgba(255, 255, 255, 0.6);
             border-radius: 50%;
             animation: particle-float 15s infinite linear;
+            opacity: 0.4;
         }
 
         @keyframes particle-float {
@@ -81,15 +79,15 @@
         .container {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 20px;
+            padding: 0px;
             position: relative;
             z-index: 1;
         }
 
         header {
             text-align: center;
-            margin-bottom: 60px;
-            padding-top: 20px;
+            margin-bottom: 10px;
+            padding-top: 0px;
             position: relative;
         }
 
@@ -139,6 +137,25 @@
             animation: glow 3s ease-in-out infinite alternate;
         }
 
+        .title-image {
+            height: 4rem;
+            max-width: 100%;
+            object-fit: contain;
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+            animation: glow-image 3s ease-in-out infinite alternate;
+            margin-top: 15px;
+            margin-bottom: 20px;
+        }
+
+        @keyframes glow-image {
+            from {
+                filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+            }
+            to {
+                filter: drop-shadow(0 4px 20px rgba(255, 255, 255, 0.4));
+            }
+        }
+
         @keyframes glow {
             from {
                 text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
@@ -152,7 +169,7 @@
             font-size: 1.5rem;
             color: rgba(255, 255, 255, 0.9);
             font-weight: 300;
-            margin-bottom: 40px;
+            margin-bottom: 15px;
         }
 
         .games-grid {
@@ -166,14 +183,14 @@
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(10px);
             border-radius: 15px;
-            padding: 20px;
+            padding: 12px;
             text-align: center;
             border: 1px solid rgba(255, 255, 255, 0.2);
             transition: all 0.3s ease;
             cursor: pointer;
             position: relative;
             overflow: hidden;
-            min-height: 200px;
+            min-height: 110px;
         }
 
         .game-card::before {
@@ -199,23 +216,23 @@
         }
 
         .game-icon {
-            font-size: 3rem;
-            margin-bottom: 15px;
+            font-size: 2rem;
+            margin-bottom: 6px;
             display: block;
             filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
         }
 
         .game-title {
-            font-size: 1.3rem;
+            font-size: 1.1rem;
             color: white;
-            margin-bottom: 10px;
+            margin-bottom: 5px;
             font-weight: bold;
         }
 
         .game-description {
             color: rgba(255, 255, 255, 0.8);
-            line-height: 1.5;
-            font-size: 0.9rem;
+            line-height: 1.3;
+            font-size: 0.8rem;
         }
 
         .coming-soon {
@@ -244,27 +261,27 @@
 
         footer {
             text-align: center;
-            padding: 40px 20px;
+            padding: 20px 20px;
             color: rgba(255, 255, 255, 0.7);
             background: rgba(0, 0, 0, 0.2);
             backdrop-filter: blur(10px);
             border-top: 1px solid rgba(255, 255, 255, 0.1);
-            margin-top: 40px;
+            margin-top: 20px;
         }
 
         .footer-content {
-            max-width: 900px; /* Reduzido de 1200px para 900px */
+            max-width: 900px;
             margin: 0 auto;
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 25px;
-            margin-bottom: 20px;
+            gap: 15px;
+            margin-bottom: 15px;
         }
 
         .footer-section h3 {
             color: #4CAF50;
-            font-size: 1.2rem;
-            margin-bottom: 15px;
+            font-size: 1.1rem;
+            margin-bottom: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -272,9 +289,9 @@
         }
 
         .footer-section p {
-            margin: 8px 0;
-            font-size: 0.95rem;
-            line-height: 1.5;
+            margin: 5px 0;
+            font-size: 0.9rem;
+            line-height: 1.4;
         }
 
         .footer-section a {
@@ -291,21 +308,22 @@
         .footer-links {
             display: flex;
             justify-content: center;
-            gap: 30px;
-            margin-bottom: 20px;
+            gap: 20px;
+            margin-bottom: 15px;
             flex-wrap: wrap;
         }
 
         .footer-link {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
             background: rgba(255, 255, 255, 0.1);
-            padding: 10px 20px;
-            border-radius: 25px;
+            padding: 8px 15px;
+            border-radius: 20px;
             transition: all 0.3s ease;
             text-decoration: none;
             color: white;
+            font-size: 0.9rem;
         }
 
         .footer-link:hover {
@@ -314,27 +332,27 @@
         }
 
         .footer-text {
-            font-size: 1.1rem;
-            margin-bottom: 10px;
+            font-size: 1rem;
+            margin-bottom: 8px;
         }
 
         .credits {
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             opacity: 0.6;
             border-top: 1px solid rgba(255, 255, 255, 0.1);
-            padding-top: 20px;
+            padding-top: 15px;
         }
 
         @media (max-width: 768px) {
             .footer-content {
                 grid-template-columns: 1fr;
-                gap: 20px;
+                gap: 15px;
             }
             
             .footer-links {
                 flex-direction: column;
                 align-items: center;
-                gap: 15px;
+                gap: 10px;
             }
         }
 
@@ -349,8 +367,8 @@
                     width: 200px;
                 }
 
-                h1 {
-                    font-size: 2.5rem;
+                .title-image {
+                    height: 2.5rem;
                 }            
             
                 .subtitle {
@@ -358,16 +376,16 @@
             }
             
             .game-card {
-                padding: 15px;
-                min-height: 180px;
+                padding: 10px;
+                min-height: 120px;
             }
             
             .game-icon {
-                font-size: 2.5rem;
+                font-size: 2rem;
             }
 
             .game-title {
-                font-size: 1.2rem;
+                font-size: 1.1rem;
             }
 
             .game-description {
@@ -376,13 +394,13 @@
             
             .footer-content {
                 grid-template-columns: 1fr;
-                gap: 20px;
+                gap: 15px;
             }
             
             .footer-links {
                 flex-direction: column;
                 align-items: center;
-                gap: 15px;
+                gap: 10px;
             }
         }
 
@@ -393,22 +411,22 @@
             }
 
             .game-card {
-                padding: 15px;
-                min-height: 160px;
+                padding: 10px;
+                min-height: 100px;
             }
 
             .game-icon {
-                font-size: 2.2rem;
-                margin-bottom: 10px;
+                font-size: 1.8rem;
+                margin-bottom: 5px;
             }
 
             .game-title {
-                font-size: 1.1rem;
-                margin-bottom: 8px;
+                font-size: 1rem;
+                margin-bottom: 4px;
             }
 
             .game-description {
-                font-size: 0.8rem;
+                font-size: 0.75rem;
             }
         }
     </style>
@@ -426,7 +444,7 @@
                     </a>
                 </div>
                 <div class="header-text">
-                    <h1>🎮 KMIKZ GameZone</h1>
+                    <img src="filmescacapalavras/images/kmikz.png" alt="KMIKZ GameZone" class="title-image" />
                     <p class="subtitle">Jogos Clássicos Online - Diversão Garantida!</p>
                 </div>
                 <div id="headerImageRightContainer" class="header-image-container">
@@ -453,7 +471,7 @@
 
             <div class="game-card game-available" onclick="window.open('snake/index.html', '_blank')">
                 <span class="game-icon">🐍</span>
-                <h3 class="game-title">Jogo da Cobrinha</h3>
+                <h3 class="game-title">Snake</h3>
                 <p class="game-description">Controle a cobra, colete frutas e cresça sem bater nas paredes. Um clássico dos jogos retrô!</p>
             </div>
 
@@ -469,33 +487,33 @@
                 <p class="game-description">Exercite sua memória encontrando os pares de cartas. Diferentes temas e níveis de dificuldade disponíveis.</p>
             </div>
 
-            <div class="game-card game-available" onclick="window.open('sudoku/index.html', '_blank')">
-                <span class="game-icon">🌟</span>
-                <h3 class="game-title">Sudoku</h3>
-                <p class="game-description">O clássico jogo de números que desafia sua lógica. Complete a grade seguindo as regras do Sudoku.</p>
+            <div class="game-card game-available" onclick="window.open('frogger/index.html', '_blank')">
+                <span class="game-icon">🐸🚗</span>
+                <h3 class="game-title">Frogger</h3>
+                <p class="game-description">Ajude o sapinho a atravessar a estrada e o rio evitando carros e obstáculos. Um clássico do Atari!</p>
             </div>
 
-            <div class="game-card coming-soon">
-                <span class="game-icon">🎪</span>
-                <h3 class="game-title">Jogo do Bicho</h3>
-                <p class="game-description">O tradicional jogo brasileiro com animais e sorteios. Teste sua sorte escolhendo seu animal favorito!</p>
+            <div class="game-card game-available" onclick="window.open('riverraid/index.html', '_blank')">
+                <span class="game-icon">🚁✈️</span>
+                <h3 class="game-title">River Raid</h3>
+                <p class="game-description">Pilote sua aeronave através do rio, destrua inimigos, colete combustível e sobreviva o máximo que puder!</p>
             </div>
 
-            <div class="game-card coming-soon">
-                <span class="game-icon">🎯</span>
+            <div class="game-card game-available" onclick="window.open('damas/index.html', '_blank')">
+                <span class="game-icon">🔴⚫</span>
                 <h3 class="game-title">Damas</h3>
                 <p class="game-description">O clássico jogo de estratégia em tabuleiro. Capture as peças do adversário e torne-se mestre das damas!</p>
             </div>
         </section>
     </div>
 
-    <section id="sobre" style="background: rgba(0, 0, 0, 0.1); padding: 60px 20px; margin-top: 40px;">
+    <section id="sobre" style="background: rgba(0, 0, 0, 0.1); padding: 20px 20px; margin-top: 20px;">
         <div class="container" style="max-width: 900px; text-align: center;">
-            <h2 style="color: white; font-size: 2.5rem; margin-bottom: 30px;">Sobre o GameZone</h2>
-            <p style="color: rgba(255, 255, 255, 0.9); font-size: 1.1rem; line-height: 1.6; margin-bottom: 20px;">
-                O GameZone é uma plataforma dedicada aos jogos clássicos que marcaram gerações. Nossa missão é trazer nostalgia e diversão através de jogos atemporais, totalmente gratuitos e acessíveis.
+            <h2 style="color: white; font-size: 2rem; margin-bottom: 15px;">Sobre o KMIKZ GameZone</h2>
+            <p style="color: rgba(255, 255, 255, 0.9); font-size: 1rem; line-height: 1.4; margin-bottom: 10px;">
+                O KMIKZ GameZone é uma plataforma dedicada aos jogos clássicos que marcaram gerações. Nossa missão é trazer nostalgia e diversão através de jogos atemporais, totalmente gratuitos e acessíveis.
             </p>
-            <p style="color: rgba(255, 255, 255, 0.8); font-size: 1rem; line-height: 1.6;">
+            <p style="color: rgba(255, 255, 255, 0.8); font-size: 0.9rem; line-height: 1.4;">
                 Desenvolvido pela KMIKZ Informática, combinamos tradição e tecnologia para oferecer a melhor experiência de gaming online.
             </p>
         </div>
@@ -546,14 +564,41 @@
         // Criar partículas flutuantes
         function createParticles() {
             const particlesContainer = document.getElementById('particles');
-            const particleCount = 50;
+            const particleCount = 75; // Aumentado de 50 para 75 (50% a mais)
+
+            // Cores das bolhas
+            const colors = [
+                'rgba(255, 182, 193, 0.7)', // Rosa claro
+                'rgba(173, 216, 230, 0.7)', // Azul claro
+                'rgba(144, 238, 144, 0.7)', // Verde claro
+                'rgba(255, 218, 185, 0.7)', // Pêssego
+                'rgba(221, 160, 221, 0.7)', // Roxo claro
+                'rgba(255, 255, 224, 0.7)', // Amarelo claro
+                'rgba(176, 196, 222, 0.7)', // Azul acinzentado
+                'rgba(255, 240, 245, 0.6)'  // Branco rosado
+            ];
 
             for (let i = 0; i < particleCount; i++) {
                 const particle = document.createElement('div');
                 particle.className = 'particle';
+                
+                // Tamanhos aleatórios entre 4px e 14px
+                const size = Math.random() * 10 + 4;
+                particle.style.width = size + 'px';
+                particle.style.height = size + 'px';
+                
+                // Cor aleatória das bolhas
+                const randomColor = colors[Math.floor(Math.random() * colors.length)];
+                particle.style.background = randomColor;
+                
+                // Posição e animação
                 particle.style.left = Math.random() * 100 + '%';
                 particle.style.animationDelay = Math.random() * 15 + 's';
                 particle.style.animationDuration = (Math.random() * 10 + 10) + 's';
+                
+                // Transparência variável
+                particle.style.opacity = Math.random() * 0.4 + 0.2; // Entre 0.2 e 0.6
+                
                 particlesContainer.appendChild(particle);
             }
         }

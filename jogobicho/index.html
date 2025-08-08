@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jogo do Bicho - KMIKZ GameZone</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎪 Jogo do Bicho</h1>
+            <p class="subtitle">Teste sua sorte com os animais brasileiros!</p>
+        </header>
+
+        <div class="game-container">
+            <!-- Seção de apostas -->
+            <div class="betting-section">
+                <h2>Faça sua Aposta</h2>
+                
+                <div class="bet-options">
+                    <div class="bet-type">
+                        <label for="bet-amount">Valor da Aposta:</label>
+                        <select id="bet-amount">
+                            <option value="1">R$ 1,00</option>
+                            <option value="5">R$ 5,00</option>
+                            <option value="10">R$ 10,00</option>
+                            <option value="25">R$ 25,00</option>
+                            <option value="50">R$ 50,00</option>
+                        </select>
+                    </div>
+
+                    <div class="bet-type">
+                        <label for="bet-mode">Tipo de Jogo:</label>
+                        <select id="bet-mode">
+                            <option value="animal">Grupo (Animal) - 1 para 18</option>
+                            <option value="dezena">Dezena - 1 para 5</option>
+                            <option value="centena">Centena - 1 para 600</option>
+                            <option value="milhar">Milhar - 1 para 4000</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Seleção de animais -->
+                <div class="animals-grid" id="animals-grid">
+                    <!-- Os animais serão gerados pelo JavaScript -->
+                </div>
+
+                <!-- Input para números -->
+                <div class="number-input" id="number-input" style="display: none;">
+                    <label for="chosen-number">Digite seu número:</label>
+                    <input type="number" id="chosen-number" min="0" max="9999" placeholder="Digite aqui...">
+                </div>
+
+                <div class="game-controls">
+                    <button id="place-bet" class="btn-primary">Fazer Aposta</button>
+                    <button id="draw-numbers" class="btn-secondary">Sortear Números</button>
+                </div>
+            </div>
+
+            <!-- Seção de resultados -->
+            <div class="results-section">
+                <h2>Resultado do Sorteio</h2>
+                
+                <div class="draw-display">
+                    <div class="winning-numbers">
+                        <div class="number-card">
+                            <span class="number" id="result-milhar">----</span>
+                            <span class="label">Milhar</span>
+                        </div>
+                        <div class="number-card">
+                            <span class="number" id="result-centena">---</span>
+                            <span class="label">Centena</span>
+                        </div>
+                        <div class="number-card">
+                            <span class="number" id="result-dezena">--</span>
+                            <span class="label">Dezena</span>
+                        </div>
+                        <div class="number-card">
+                            <span class="number" id="result-animal">--</span>
+                            <span class="label">Animal</span>
+                        </div>
+                    </div>
+
+                    <div class="winning-animal" id="winning-animal">
+                        <div class="animal-display">
+                            <div class="animal-icon">🐾</div>
+                            <div class="animal-name">Aguardando sorteio...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Seção de status do jogo -->
+            <div class="game-status">
+                <div class="player-info">
+                    <div class="balance">
+                        <span class="label">Saldo:</span>
+                        <span class="value" id="player-balance">R$ 100,00</span>
+                    </div>
+                    <div class="current-bet">
+                        <span class="label">Aposta Atual:</span>
+                        <span class="value" id="current-bet">Nenhuma</span>
+                    </div>
+                </div>
+
+                <div class="game-result" id="game-result">
+                    <!-- Resultado da aposta será exibido aqui -->
+                </div>
+            </div>
+
+            <!-- Histórico de jogadas -->
+            <div class="history-section">
+                <h3>Últimos Sorteios</h3>
+                <div class="history-list" id="history-list">
+                    <div class="history-item">
+                        <span class="draw-number">Sorteio #001</span>
+                        <span class="draw-result">1234 - Avestruz</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabela de animais -->
+            <div class="animals-table">
+                <h3>Tabela dos Animais</h3>
+                <div class="table-grid">
+                    <!-- Será preenchida pelo JavaScript -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Botão de volta -->
+        <div class="back-button">
+            <a href="../index.html" class="btn-back">🏠 Voltar ao Menu</a>
+        </div>
+    </div>
+
+    <script src="js/game.js"></script>
+</body>
+</html>

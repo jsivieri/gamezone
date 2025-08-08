@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jogo de Damas - KMIKZ GameZone</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" href="../filmescacapalavras/images/kmikz.png" type="image/png">
+</head>
+<body>
+    <div class="game-container">
+        <!-- Header do Jogo -->
+        <header class="game-header">
+            <div class="header-content">
+                <div class="game-logo">
+                    <img src="../filmescacapalavras/images/kmikz.png" alt="KMIKZ" class="logo-img">
+                    <h1>🔴⚫ Jogo de Damas</h1>
+                </div>
+                <div class="game-controls">
+                    <button id="newGameBtn" class="control-btn primary">🎮 Novo Jogo</button>
+                    <button id="vsComputerBtn" class="control-btn primary">🤖 vs Computador</button>
+                    <button id="rulesBtn" class="control-btn secondary">📋 Regras</button>
+                    <button id="homeBtn" class="control-btn secondary" onclick="window.open('../index.html', '_blank')">🏠 Início</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Informações do Jogo -->
+        <div class="game-info">
+            <div class="score-board">
+                <div class="player-info current-player" id="player1Info">
+                    <div class="player-color red"></div>
+                    <div class="player-details">
+                        <h3 id="player1Name">Jogador 1</h3>
+                        <div class="pieces-count">
+                            <span class="pieces-normal">Peças: <span id="redPieces">12</span></span>
+                            <span class="pieces-king">Damas: <span id="redKings">0</span></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="game-status">
+                    <div class="current-turn">
+                        <h3 id="turnIndicator">Vez do Jogador 1</h3>
+                        <div class="turn-timer">
+                            <span id="gameTimer">00:00</span>
+                        </div>
+                        <div class="move-timer" id="moveTimerContainer" style="display: none;">
+                            <span>Tempo para jogada: </span>
+                            <span id="moveTimer" class="move-countdown">30s</span>
+                        </div>
+                    </div>
+                    <div class="game-stats">
+                        <div class="stat">
+                            <span class="stat-label">Jogadas:</span>
+                            <span id="moveCount">0</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-label">Capturas:</span>
+                            <span id="captureCount">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="player-info" id="player2Info">
+                    <div class="player-color black"></div>
+                    <div class="player-details">
+                        <h3 id="player2Name">Jogador 2</h3>
+                        <div class="pieces-count">
+                            <span class="pieces-normal">Peças: <span id="blackPieces">12</span></span>
+                            <span class="pieces-king">Damas: <span id="blackKings">0</span></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabuleiro de Damas -->
+        <div class="board-container">
+            <div class="board-wrapper">
+                <div id="gameBoard" class="game-board">
+                    <!-- O tabuleiro será gerado dinamicamente pelo JavaScript -->
+                </div>
+                
+                <!-- Indicadores de coordenadas -->
+                <div class="board-coordinates">
+                    <div class="coord-letters">
+                        <span>A</span><span>B</span><span>C</span><span>D</span>
+                        <span>E</span><span>F</span><span>G</span><span>H</span>
+                    </div>
+                    <div class="coord-numbers">
+                        <span>1</span><span>2</span><span>3</span><span>4</span>
+                        <span>5</span><span>6</span><span>7</span><span>8</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Painel de Ações -->
+        <div class="action-panel">
+            <div class="action-buttons">
+                <button id="undoBtn" class="action-btn" disabled>
+                    <span class="btn-icon">↶</span>
+                    <span>Desfazer</span>
+                </button>
+                <button id="hintBtn" class="action-btn">
+                    <span class="btn-icon">💡</span>
+                    <span>Dica</span>
+                </button>
+                <button id="difficultyBtn" class="action-btn" style="display: none;">
+                    <span class="btn-icon">🎯</span>
+                    <span id="difficultyText">Fácil</span>
+                </button>
+                <button id="surrenderBtn" class="action-btn danger">
+                    <span class="btn-icon">🏳️</span>
+                    <span>Desistir</span>
+                </button>
+            </div>
+            
+            <div class="game-messages">
+                <div id="gameMessage" class="message">Selecione uma peça vermelha para começar!</div>
+            </div>
+        </div>
+
+        <!-- Histórico de Jogadas -->
+        <div class="moves-history">
+            <h3>📜 Histórico de Jogadas</h3>
+            <div id="movesContainer" class="moves-container">
+                <div class="no-moves">Nenhuma jogada ainda</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Regras -->
+    <div id="rulesModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>📋 Regras do Jogo de Damas</h2>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="rules-section">
+                    <h3>🎯 Objetivo</h3>
+                    <p>Capture todas as peças do adversário ou impeça que ele faça movimentos válidos.</p>
+                </div>
+                
+                <div class="rules-section">
+                    <h3>🚶 Movimento Básico</h3>
+                    <ul>
+                        <li>Peças comuns movem-se apenas nas diagonais</li>
+                        <li>Uma casa por vez, sempre para frente</li>
+                        <li>Só podem ocupar casas escuras</li>
+                    </ul>
+                </div>
+                
+                <div class="rules-section">
+                    <h3>👑 Promoção a Dama</h3>
+                    <ul>
+                        <li>Peça que chega ao final do tabuleiro vira Dama</li>
+                        <li>Damas podem mover-se para frente e para trás</li>
+                        <li>Damas têm maior poder de captura</li>
+                    </ul>
+                </div>
+                
+                <div class="rules-section">
+                    <h3>⚔️ Captura</h3>
+                    <ul>
+                        <li>Salte sobre a peça adversária em diagonal</li>
+                        <li>A casa de destino deve estar vazia</li>
+                        <li>Capturas múltiplas são obrigatórias</li>
+                        <li>Se há captura possível, deve ser feita</li>
+                    </ul>
+                </div>
+                
+                <div class="rules-section">
+                    <h3>🏆 Vitória</h3>
+                    <ul>
+                        <li>Capture todas as peças adversárias</li>
+                        <li>Ou impeça o adversário de se mover</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="close-modal control-btn primary">Entendido!</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Fim de Jogo -->
+    <div id="gameOverModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="gameOverTitle">🏆 Fim de Jogo!</h2>
+            </div>
+            <div class="modal-body">
+                <div class="game-over-content">
+                    <div id="winnerMessage" class="winner-message"></div>
+                    <div class="game-stats-final">
+                        <div class="stat-final">
+                            <span class="stat-label">Tempo Total:</span>
+                            <span id="finalTime">00:00</span>
+                        </div>
+                        <div class="stat-final">
+                            <span class="stat-label">Jogadas:</span>
+                            <span id="finalMoves">0</span>
+                        </div>
+                        <div class="stat-final">
+                            <span class="stat-label">Capturas:</span>
+                            <span id="finalCaptures">0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="playAgainBtn" class="control-btn primary">🎮 Jogar Novamente</button>
+                <button id="backHomeBtn" class="control-btn secondary">🏠 Voltar ao Início</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/game.js"></script>
+    
+    <!-- Efeitos Visuais de Partículas -->
+    <div class="particles" id="particles"></div>
+
+    <script>
+        // Criar partículas de fundo
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            const particleCount = 20;
+            const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#feca57'];
+
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.width = Math.random() * 6 + 4 + 'px';
+                particle.style.height = particle.style.width;
+                particle.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 15 + 's';
+                particle.style.animationDuration = Math.random() * 10 + 15 + 's';
+                particlesContainer.appendChild(particle);
+            }
+        }
+
+        // Inicializar partículas
+        document.addEventListener('DOMContentLoaded', createParticles);
+    </script>
+</body>
+</html>

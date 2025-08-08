@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Frogger - KMIKZ GameZone</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="game-container">
+        <!-- Tela de Menu -->
+        <div id="menuScreen" class="screen active">
+            <div class="menu-content">
+                <h1 class="game-title">🐸 FROGGER 🚗</h1>
+                <p class="game-subtitle">Ajude o sapinho a atravessar!</p>
+                
+                <div class="menu-options">
+                    <button class="menu-btn" onclick="startGame()">🎮 JOGAR</button>
+                    <button class="menu-btn" onclick="showInstructions()">📋 COMO JOGAR</button>
+                    <button class="menu-btn" onclick="showScores()">🏆 RECORDES</button>
+                </div>
+                
+                <div class="game-info">
+                    <p>Use as setas para mover o sapinho ⬅️➡️⬆️⬇️</p>
+                    <p>Evite carros e atravesse no tronco! 🪵</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tela de Instruções -->
+        <div id="instructionsScreen" class="screen">
+            <div class="instructions-content">
+                <h2>📋 Como Jogar Frogger</h2>
+                <div class="instructions-list">
+                    <div class="instruction-item">
+                        <span class="instruction-icon">🎯</span>
+                        <p><strong>Objetivo:</strong> Atravesse a estrada e o rio para chegar do outro lado</p>
+                    </div>
+                    <div class="instruction-item">
+                        <span class="instruction-icon">⬅️➡️</span>
+                        <p><strong>Movimento:</strong> Use as setas do teclado para mover o sapinho</p>
+                    </div>
+                    <div class="instruction-item">
+                        <span class="instruction-icon">🚗</span>
+                        <p><strong>Estrada:</strong> Evite ser atropelado pelos carros que passam</p>
+                    </div>
+                    <div class="instruction-item">
+                        <span class="instruction-icon">🪵</span>
+                        <p><strong>Rio:</strong> Pule nos troncos e tartarugas para não se afogar</p>
+                    </div>
+                    <div class="instruction-item">
+                        <span class="instruction-icon">⏰</span>
+                        <p><strong>Tempo:</strong> Você tem tempo limitado para cada travessia</p>
+                    </div>
+                    <div class="instruction-item">
+                        <span class="instruction-icon">🏆</span>
+                        <p><strong>Pontuação:</strong> Ganhe pontos por cada travessia bem-sucedida</p>
+                    </div>
+                </div>
+                <button class="menu-btn" onclick="backToMenu()">⬅️ VOLTAR</button>
+            </div>
+        </div>
+
+        <!-- Tela de Recordes -->
+        <div id="scoresScreen" class="screen">
+            <div class="scores-content">
+                <h2>🏆 Melhores Pontuações</h2>
+                <div id="scoresList" class="scores-list">
+                    <!-- Os recordes serão carregados aqui -->
+                </div>
+                <button class="menu-btn" onclick="clearScores()">🗑️ LIMPAR RECORDES</button>
+                <button class="menu-btn" onclick="backToMenu()">⬅️ VOLTAR</button>
+            </div>
+        </div>
+
+        <!-- Tela do Jogo -->
+        <div id="gameScreen" class="screen">
+            <div class="game-hud">
+                <div class="hud-item">
+                    <span class="hud-label">PONTOS:</span>
+                    <span id="score">0</span>
+                </div>
+                <div class="hud-item">
+                    <span class="hud-label">VIDAS:</span>
+                    <span id="lives">3</span>
+                </div>
+                <div class="hud-item">
+                    <span class="hud-label">NÍVEL:</span>
+                    <span id="level">1</span>
+                </div>
+                <div class="hud-item">
+                    <span class="hud-label">TEMPO:</span>
+                    <div class="time-bar">
+                        <div id="timeLevel" class="time-level"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <canvas id="gameCanvas" width="800" height="600"></canvas>
+            
+            <div class="game-controls">
+                <p>Use ⬅️➡️⬆️⬇️ para mover | ESC para pausar</p>
+            </div>
+
+            <!-- Controles Mobile -->
+            <div class="mobile-controls">
+                <div class="control-row">
+                    <button class="control-btn" id="upBtn">⬆️</button>
+                </div>
+                <div class="control-row">
+                    <button class="control-btn" id="leftBtn">⬅️</button>
+                    <button class="control-btn" id="downBtn">⬇️</button>
+                    <button class="control-btn" id="rightBtn">➡️</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tela de Game Over -->
+        <div id="gameOverScreen" class="screen">
+            <div class="game-over-content">
+                <h2 class="game-over-title">🐸💥 GAME OVER!</h2>
+                <div class="final-stats">
+                    <p>Pontuação Final: <span id="finalScore">0</span></p>
+                    <p>Nível Alcançado: <span id="finalLevel">1</span></p>
+                    <p>Travessias Completas: <span id="crossings">0</span></p>
+                </div>
+                
+                <div id="newRecordMessage" class="new-record hidden">
+                    🎉 NOVO RECORDE! 🎉
+                </div>
+                
+                <div class="game-over-options">
+                    <button class="menu-btn" onclick="restartGame()">🔄 JOGAR NOVAMENTE</button>
+                    <button class="menu-btn" onclick="backToMenu()">🏠 MENU PRINCIPAL</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tela de Pausa -->
+        <div id="pauseScreen" class="screen">
+            <div class="pause-content">
+                <h2>⏸️ PAUSADO</h2>
+                <div class="pause-options">
+                    <button class="menu-btn" onclick="resumeGame()">▶️ CONTINUAR</button>
+                    <button class="menu-btn" onclick="restartGame()">🔄 REINICIAR</button>
+                    <button class="menu-btn" onclick="backToMenu()">🏠 MENU PRINCIPAL</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tela de Nível Completo -->
+        <div id="levelCompleteScreen" class="screen">
+            <div class="level-complete-content">
+                <h2 class="level-complete-title">🎉 NÍVEL COMPLETO! 🎉</h2>
+                <div class="level-stats">
+                    <p>Nível: <span id="completedLevel">1</span></p>
+                    <p>Pontos Bonus: <span id="bonusPoints">500</span></p>
+                    <p>Tempo Restante: <span id="timeBonus">30s</span></p>
+                </div>
+                <button class="menu-btn" onclick="nextLevel()">➡️ PRÓXIMO NÍVEL</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/game.js"></script>
+</body>
+</html>
