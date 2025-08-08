@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sudoku</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-attachment: fixed;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            width: 100%;
+            text-align: center;
+        }
+
+        h1 {
+            color: white;
+            font-size: 3rem;
+            margin-bottom: 10px;
+            text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            background: linear-gradient(45deg, #fff, #f0f8ff, #e6e6fa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+        }
+
+        .game-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .info-item {
+            color: white;
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+
+        .info-value {
+            display: block;
+            font-size: 1.5rem;
+            color: #4CAF50;
+            margin-top: 5px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn-level {
+            background: linear-gradient(45deg, #2196F3, #1976D2);
+        }
+
+        .btn-level.active {
+            background: linear-gradient(45deg, #FF9800, #F57C00);
+            transform: translateY(-2px);
+        }
+
+        .btn-action {
+            background: linear-gradient(45deg, #9C27B0, #7B1FA2);
+        }
+
+        .sudoku-container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            justify-content: center;
+        }
+
+        .sudoku-grid {
+            display: grid;
+            grid-template-columns: repeat(9, 1fr);
+            grid-template-rows: repeat(9, 1fr);
+            gap: 2px;
+            background: #333;
+            border: 3px solid #333;
+            border-radius: 8px;
+            padding: 8px;
+            max-width: 450px;
+            width: 100%;
+        }
+
+        .sudoku-cell {
+            aspect-ratio: 1;
+            background: white;
+            border: 1px solid #ddd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            user-select: none;
+        }
+
+        .sudoku-cell:hover {
+            background: #e3f2fd;
+        }
+
+        .sudoku-cell.selected {
+            background: #2196f3 !important;
+            color: white;
+        }
+
+        .sudoku-cell.given {
+            background: #f5f5f5;
+            color: #333;
+            font-weight: bold;
+            cursor: default;
+        }
+
+        .sudoku-cell.given:hover {
+            background: #f5f5f5;
+        }
+
+        .sudoku-cell.error {
+            background: #ffebee !important;
+            color: #d32f2f;
+            animation: shake 0.3s ease-in-out;
+        }
+
+        .sudoku-cell.highlight {
+            background: #fff3e0 !important;
+        }
+
+        /* Bordas mais grossas para delimitar os quadrantes 3x3 */
+        .sudoku-cell:nth-child(3n) {
+            border-right: 2px solid #333;
+        }
+
+        .sudoku-cell:nth-child(n+19):nth-child(-n+27),
+        .sudoku-cell:nth-child(n+46):nth-child(-n+54) {
+            border-bottom: 2px solid #333;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .number-pad {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            max-width: 300px;
+            margin: 0 auto;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .number-btn {
+            aspect-ratio: 1;
+            background: linear-gradient(45deg, #607d8b, #455a64);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .number-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .number-btn.clear {
+            background: linear-gradient(45deg, #f44336, #d32f2f);
+        }
+
+        .victory-message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(145deg, #4CAF50, #45a049);
+            color: white;
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .victory-message.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .victory-message h2 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+        }
+
+        .victory-message p {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+        }
+
+        .hint-system {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .hint-counter {
+            color: white;
+            font-size: 1rem;
+            margin-bottom: 10px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .sudoku-grid {
+                max-width: 300px;
+                gap: 1px;
+                padding: 4px;
+            }
+            
+            .sudoku-cell {
+                font-size: 1rem;
+            }
+            
+            .game-info {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .number-pad {
+                max-width: 250px;
+                gap: 8px;
+                padding: 15px;
+            }
+            
+            .number-btn {
+                font-size: 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .sudoku-container {
+                padding: 15px;
+            }
+            
+            .sudoku-grid {
+                max-width: 250px;
+            }
+            
+            .sudoku-cell {
+                font-size: 0.9rem;
+            }
+            
+            .number-pad {
+                max-width: 200px;
+                gap: 6px;
+                padding: 10px;
+            }
+            
+            .number-btn {
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🌟 Sudoku</h1>
+            <p class="subtitle">Complete a grade com números de 1 a 9!</p>
+        </header>
+
+        <div class="game-info">
+            <div class="info-item">
+                Tempo
+                <span class="info-value" id="timer">00:00</span>
+            </div>
+            <div class="info-item">
+                Dificuldade
+                <span class="info-value" id="difficulty">Fácil</span>
+            </div>
+            <div class="info-item">
+                Células Restantes
+                <span class="info-value" id="remaining">0</span>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="btn btn-level active" data-level="easy">Fácil</button>
+            <button class="btn btn-level" data-level="medium">Médio</button>
+            <button class="btn btn-level" data-level="hard">Difícil</button>
+            <button class="btn" id="newGame">Novo Jogo</button>
+            <button class="btn btn-action" id="checkSolution">Verificar</button>
+            <button class="btn btn-action" id="getHint">Dica (3)</button>
+        </div>
+
+        <div class="hint-system">
+            <div class="hint-counter">Dicas restantes: <span id="hintCount">3</span></div>
+        </div>
+
+        <div class="sudoku-container">
+            <div class="sudoku-grid" id="sudokuGrid"></div>
+        </div>
+
+        <div class="number-pad">
+            <button class="number-btn" data-number="1">1</button>
+            <button class="number-btn" data-number="2">2</button>
+            <button class="number-btn" data-number="3">3</button>
+            <button class="number-btn" data-number="4">4</button>
+            <button class="number-btn" data-number="5">5</button>
+            <button class="number-btn" data-number="6">6</button>
+            <button class="number-btn" data-number="7">7</button>
+            <button class="number-btn" data-number="8">8</button>
+            <button class="number-btn" data-number="9">9</button>
+            <button class="number-btn clear" data-number="0">✖</button>
+        </div>
+    </div>
+
+    <div class="victory-message" id="victoryMessage">
+        <h2>🎉 Parabéns!</h2>
+        <p id="victoryText">Você resolveu o Sudoku!</p>
+        <button class="btn" onclick="startNewGame()">Jogar Novamente</button>
+    </div>
+
+    <script>
+        class SudokuGame {
+            constructor() {
+                this.grid = Array(9).fill().map(() => Array(9).fill(0));
+                this.originalGrid = Array(9).fill().map(() => Array(9).fill(0));
+                this.solution = Array(9).fill().map(() => Array(9).fill(0));
+                this.selectedCell = null;
+                this.difficulty = 'easy';
+                this.startTime = null;
+                this.timerInterval = null;
+                this.hints = 3;
+                this.isGameActive = false;
+
+                this.difficultySettings = {
+                    easy: { cellsToRemove: 40, name: 'Fácil' },
+                    medium: { cellsToRemove: 50, name: 'Médio' },
+                    hard: { cellsToRemove: 60, name: 'Difícil' }
+                };
+
+                this.initializeGame();
+                this.setupEventListeners();
+            }
+
+            setupEventListeners() {
+                // Botões de dificuldade
+                document.querySelectorAll('.btn-level').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        document.querySelectorAll('.btn-level').forEach(b => b.classList.remove('active'));
+                        e.target.classList.add('active');
+                        this.difficulty = e.target.dataset.level;
+                        document.getElementById('difficulty').textContent = this.difficultySettings[this.difficulty].name;
+                    });
+                });
+
+                // Botão novo jogo
+                document.getElementById('newGame').addEventListener('click', () => {
+                    this.newGame();
+                });
+
+                // Botão verificar
+                document.getElementById('checkSolution').addEventListener('click', () => {
+                    this.checkSolution();
+                });
+
+                // Botão dica
+                document.getElementById('getHint').addEventListener('click', () => {
+                    this.getHint();
+                });
+
+                // Teclado numérico
+                document.querySelectorAll('.number-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const number = parseInt(e.target.dataset.number);
+                        this.inputNumber(number);
+                    });
+                });
+
+                // Teclado físico
+                document.addEventListener('keydown', (e) => {
+                    if (e.key >= '1' && e.key <= '9') {
+                        this.inputNumber(parseInt(e.key));
+                    } else if (e.key === 'Delete' || e.key === 'Backspace') {
+                        this.inputNumber(0);
+                    }
+                });
+            }
+
+            initializeGame() {
+                this.createGrid();
+                this.newGame();
+            }
+
+            createGrid() {
+                const gridElement = document.getElementById('sudokuGrid');
+                gridElement.innerHTML = '';
+
+                for (let i = 0; i < 81; i++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'sudoku-cell';
+                    cell.dataset.index = i;
+                    
+                    cell.addEventListener('click', () => {
+                        this.selectCell(i);
+                    });
+
+                    gridElement.appendChild(cell);
+                }
+            }
+
+            newGame() {
+                this.generateSudoku();
+                this.hints = 3;
+                this.updateDisplay();
+                this.startTimer();
+                this.isGameActive = true;
+                
+                document.getElementById('victoryMessage').classList.remove('show');
+                document.getElementById('getHint').textContent = `Dica (${this.hints})`;
+                document.getElementById('hintCount').textContent = this.hints;
+            }
+
+            generateSudoku() {
+                // Limpar grade
+                this.grid = Array(9).fill().map(() => Array(9).fill(0));
+                
+                // Gerar solução completa
+                this.fillGrid();
+                
+                // Copiar solução
+                this.solution = this.grid.map(row => [...row]);
+                
+                // Remover células baseado na dificuldade
+                this.removeCells();
+                
+                // Salvar grade original
+                this.originalGrid = this.grid.map(row => [...row]);
+                
+                this.updateGridDisplay();
+            }
+
+            fillGrid() {
+                const numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+                
+                for (let row = 0; row < 9; row++) {
+                    for (let col = 0; col < 9; col++) {
+                        if (this.grid[row][col] === 0) {
+                            const shuffledNumbers = this.shuffleArray([...numbers]);
+                            
+                            for (let num of shuffledNumbers) {
+                                if (this.isValidMove(row, col, num)) {
+                                    this.grid[row][col] = num;
+                                    
+                                    if (this.fillGrid()) {
+                                        return true;
+                                    }
+                                    
+                                    this.grid[row][col] = 0;
+                                }
+                            }
+                            
+                            return false;
+                        }
+                    }
+                }
+                
+                return true;
+            }
+
+            removeCells() {
+                const cellsToRemove = this.difficultySettings[this.difficulty].cellsToRemove;
+                let removed = 0;
+                
+                while (removed < cellsToRemove) {
+                    const row = Math.floor(Math.random() * 9);
+                    const col = Math.floor(Math.random() * 9);
+                    
+                    if (this.grid[row][col] !== 0) {
+                        this.grid[row][col] = 0;
+                        removed++;
+                    }
+                }
+            }
+
+            isValidMove(row, col, num) {
+                // Verificar linha
+                for (let c = 0; c < 9; c++) {
+                    if (this.grid[row][c] === num) return false;
+                }
+                
+                // Verificar coluna
+                for (let r = 0; r < 9; r++) {
+                    if (this.grid[r][col] === num) return false;
+                }
+                
+                // Verificar quadrante 3x3
+                const boxRow = Math.floor(row / 3) * 3;
+                const boxCol = Math.floor(col / 3) * 3;
+                
+                for (let r = boxRow; r < boxRow + 3; r++) {
+                    for (let c = boxCol; c < boxCol + 3; c++) {
+                        if (this.grid[r][c] === num) return false;
+                    }
+                }
+                
+                return true;
+            }
+
+            selectCell(index) {
+                const row = Math.floor(index / 9);
+                const col = index % 9;
+                
+                // Não permitir seleção de células dadas
+                if (this.originalGrid[row][col] !== 0) return;
+                
+                // Limpar seleção anterior
+                document.querySelectorAll('.sudoku-cell').forEach(cell => {
+                    cell.classList.remove('selected', 'highlight');
+                });
+                
+                // Selecionar nova célula
+                this.selectedCell = { row, col, index };
+                const cell = document.querySelector(`[data-index="${index}"]`);
+                cell.classList.add('selected');
+                
+                // Destacar linha, coluna e quadrante
+                this.highlightRelated(row, col);
+            }
+
+            highlightRelated(row, col) {
+                for (let i = 0; i < 9; i++) {
+                    // Destacar linha
+                    const rowCell = document.querySelector(`[data-index="${row * 9 + i}"]`);
+                    if (rowCell) rowCell.classList.add('highlight');
+                    
+                    // Destacar coluna
+                    const colCell = document.querySelector(`[data-index="${i * 9 + col}"]`);
+                    if (colCell) colCell.classList.add('highlight');
+                }
+                
+                // Destacar quadrante 3x3
+                const boxRow = Math.floor(row / 3) * 3;
+                const boxCol = Math.floor(col / 3) * 3;
+                
+                for (let r = boxRow; r < boxRow + 3; r++) {
+                    for (let c = boxCol; c < boxCol + 3; c++) {
+                        const cell = document.querySelector(`[data-index="${r * 9 + c}"]`);
+                        if (cell) cell.classList.add('highlight');
+                    }
+                }
+            }
+
+            inputNumber(number) {
+                if (!this.selectedCell || !this.isGameActive) return;
+                
+                const { row, col, index } = this.selectedCell;
+                const cell = document.querySelector(`[data-index="${index}"]`);
+                
+                // Limpar classes de erro
+                cell.classList.remove('error');
+                
+                if (number === 0) {
+                    // Apagar número
+                    this.grid[row][col] = 0;
+                    cell.textContent = '';
+                } else {
+                    // Verificar se o movimento é válido
+                    if (this.isValidMove(row, col, number)) {
+                        this.grid[row][col] = number;
+                        cell.textContent = number;
+                        
+                        // Verificar vitória
+                        if (this.isSolved()) {
+                            this.gameWon();
+                        }
+                    } else {
+                        // Mostrar erro
+                        cell.classList.add('error');
+                        setTimeout(() => {
+                            cell.classList.remove('error');
+                        }, 500);
+                    }
+                }
+                
+                this.updateDisplay();
+            }
+
+            getHint() {
+                if (this.hints <= 0 || !this.isGameActive) return;
+                
+                // Encontrar células vazias
+                const emptyCells = [];
+                for (let row = 0; row < 9; row++) {
+                    for (let col = 0; col < 9; col++) {
+                        if (this.grid[row][col] === 0) {
+                            emptyCells.push({ row, col });
+                        }
+                    }
+                }
+                
+                if (emptyCells.length === 0) return;
+                
+                // Escolher célula aleatória para dar dica
+                const randomCell = emptyCells[Math.floor(Math.random() * emptyCells.length)];
+                const { row, col } = randomCell;
+                
+                // Preencher com a resposta correta
+                this.grid[row][col] = this.solution[row][col];
+                
+                const index = row * 9 + col;
+                const cell = document.querySelector(`[data-index="${index}"]`);
+                cell.textContent = this.solution[row][col];
+                cell.style.background = '#c8e6c9';
+                
+                this.hints--;
+                document.getElementById('getHint').textContent = `Dica (${this.hints})`;
+                document.getElementById('hintCount').textContent = this.hints;
+                
+                if (this.hints === 0) {
+                    document.getElementById('getHint').disabled = true;
+                }
+                
+                this.updateDisplay();
+                
+                // Verificar vitória
+                if (this.isSolved()) {
+                    this.gameWon();
+                }
+            }
+
+            checkSolution() {
+                let hasErrors = false;
+                
+                for (let row = 0; row < 9; row++) {
+                    for (let col = 0; col < 9; col++) {
+                        const index = row * 9 + col;
+                        const cell = document.querySelector(`[data-index="${index}"]`);
+                        
+                        if (this.grid[row][col] !== 0) {
+                            if (this.grid[row][col] !== this.solution[row][col]) {
+                                cell.classList.add('error');
+                                hasErrors = true;
+                                
+                                setTimeout(() => {
+                                    cell.classList.remove('error');
+                                }, 1000);
+                            }
+                        }
+                    }
+                }
+                
+                if (!hasErrors && this.isSolved()) {
+                    this.gameWon();
+                }
+            }
+
+            isSolved() {
+                for (let row = 0; row < 9; row++) {
+                    for (let col = 0; col < 9; col++) {
+                        if (this.grid[row][col] === 0) return false;
+                    }
+                }
+                return true;
+            }
+
+            updateGridDisplay() {
+                for (let row = 0; row < 9; row++) {
+                    for (let col = 0; col < 9; col++) {
+                        const index = row * 9 + col;
+                        const cell = document.querySelector(`[data-index="${index}"]`);
+                        const value = this.grid[row][col];
+                        
+                        if (value !== 0) {
+                            cell.textContent = value;
+                            if (this.originalGrid[row][col] !== 0) {
+                                cell.classList.add('given');
+                            } else {
+                                cell.classList.remove('given');
+                            }
+                        } else {
+                            cell.textContent = '';
+                            cell.classList.remove('given');
+                        }
+                    }
+                }
+            }
+
+            startTimer() {
+                this.startTime = Date.now();
+                
+                if (this.timerInterval) {
+                    clearInterval(this.timerInterval);
+                }
+                
+                this.timerInterval = setInterval(() => {
+                    this.updateTimer();
+                }, 1000);
+            }
+
+            updateTimer() {
+                if (!this.startTime) return;
+                
+                const elapsed = Math.floor((Date.now() - this.startTime) / 1000);
+                const minutes = Math.floor(elapsed / 60).toString().padStart(2, '0');
+                const seconds = (elapsed % 60).toString().padStart(2, '0');
+                
+                document.getElementById('timer').textContent = `${minutes}:${seconds}`;
+            }
+
+            updateDisplay() {
+                const remaining = this.grid.flat().filter(cell => cell === 0).length;
+                document.getElementById('remaining').textContent = remaining;
+            }
+
+            gameWon() {
+                this.isGameActive = false;
+                clearInterval(this.timerInterval);
+                
+                const finalTime = document.getElementById('timer').textContent;
+                const difficultyName = this.difficultySettings[this.difficulty].name;
+                const victoryText = `Você completou o Sudoku ${difficultyName} em ${finalTime}!`;
+                
+                document.getElementById('victoryText').textContent = victoryText;
+                document.getElementById('victoryMessage').classList.add('show');
+            }
+
+            shuffleArray(array) {
+                const shuffled = [...array];
+                for (let i = shuffled.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+                }
+                return shuffled;
+            }
+        }
+
+        // Inicializar jogo
+        let game;
+
+        function startNewGame() {
+            if (game) {
+                game.newGame();
+            } else {
+                game = new SudokuGame();
+            }
+            document.getElementById('victoryMessage').classList.remove('show');
+        }
+
+        // Iniciar quando a página carregar
+        document.addEventListener('DOMContentLoaded', () => {
+            game = new SudokuGame();
+        });
+    </script>
+</body>
+</html>

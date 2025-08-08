@@ -1,0 +1,1485 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Inteligente</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-attachment: fixed;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            width: 100%;
+            text-align: center;
+        }
+
+        h1 {
+            color: white;
+            font-size: 3rem;
+            margin-bottom: 10px;
+            text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            background: linear-gradient(45deg, #fff, #f0f8ff, #e6e6fa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+        }
+
+        .game-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .info-item {
+            color: white;
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+
+        .info-value {
+            display: block;
+            font-size: 1.5rem;
+            color: #4CAF50;
+            margin-top: 5px;
+        }
+
+        .category-selection {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .category-selection h2 {
+            color: white;
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+        }
+
+        .categories-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .category-btn {
+            padding: 15px 20px;
+            background: linear-gradient(45deg, #2196F3, #1976D2);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .category-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .category-btn.active {
+            background: linear-gradient(45deg, #FF9800, #F57C00);
+            transform: translateY(-2px);
+        }
+
+        .quiz-container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            display: none;
+        }
+
+        .quiz-container.active {
+            display: block;
+        }
+
+        .question-counter {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1rem;
+            margin-bottom: 20px;
+        }
+
+        .question {
+            color: white;
+            font-size: 1.4rem;
+            font-weight: bold;
+            margin-bottom: 30px;
+            line-height: 1.4;
+            text-align: left;
+        }
+
+        .answers {
+            display: grid;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .answer-btn {
+            padding: 15px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            color: white;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+        }
+
+        .answer-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .answer-btn.correct {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            border-color: #4CAF50;
+        }
+
+        .answer-btn.incorrect {
+            background: linear-gradient(45deg, #f44336, #d32f2f);
+            border-color: #f44336;
+        }
+
+        .answer-btn.disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn:disabled {
+            background: #666;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .result-screen {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 40px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            display: none;
+        }
+
+        .result-screen.active {
+            display: block;
+        }
+
+        .result-screen h2 {
+            color: white;
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+        }
+
+        .score {
+            font-size: 3rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .score.excellent {
+            color: #4CAF50;
+        }
+
+        .score.good {
+            color: #FF9800;
+        }
+
+        .score.average {
+            color: #FFC107;
+        }
+
+        .score.poor {
+            color: #f44336;
+        }
+
+        .result-message {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .game-info {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .categories-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .question {
+                font-size: 1.2rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .category-selection,
+            .quiz-container,
+            .result-screen {
+                padding: 20px;
+            }
+            
+            .question {
+                font-size: 1.1rem;
+            }
+            
+            .answer-btn {
+                padding: 12px 15px;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎯 Quiz Inteligente</h1>
+            <p class="subtitle">Teste seus conhecimentos em diferentes áreas!</p>
+        </header>
+
+        <div class="game-info">
+            <div class="info-item">
+                Pontuação
+                <span class="info-value" id="score">0</span>
+            </div>
+            <div class="info-item">
+                Questão
+                <span class="info-value" id="questionNumber">0/0</span>
+            </div>
+            <div class="info-item">
+                Acertos
+                <span class="info-value" id="correctAnswers">0</span>
+            </div>
+        </div>
+
+        <!-- Seleção de Categoria -->
+        <div class="category-selection" id="categorySelection">
+            <h2>Escolha uma categoria:</h2>
+            <div class="categories-grid">
+                <button class="category-btn" data-category="geral">📚 Conhecimentos Gerais</button>
+                <button class="category-btn" data-category="ciencia">🔬 Ciências</button>
+                <button class="category-btn" data-category="historia">🏛️ História</button>
+                <button class="category-btn" data-category="geografia">🌍 Geografia</button>
+                <button class="category-btn" data-category="esportes">⚽ Esportes</button>
+                <button class="category-btn" data-category="informatica">💻 Informática</button>
+            </div>
+            <div class="controls">
+                <button class="btn" id="startQuiz" disabled>Iniciar Quiz</button>
+            </div>
+        </div>
+
+        <!-- Quiz Container -->
+        <div class="quiz-container" id="quizContainer">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="question-counter" id="questionCounter">Questão 1 de 10</div>
+            <div class="question" id="question">Carregando pergunta...</div>
+            <div class="answers" id="answers"></div>
+            <div class="controls">
+                <button class="btn" id="nextQuestion" disabled>Próxima Questão</button>
+            </div>
+        </div>
+
+        <!-- Tela de Resultado -->
+        <div class="result-screen" id="resultScreen">
+            <h2>🎉 Quiz Concluído!</h2>
+            <div class="score" id="finalScore">0/10</div>
+            <div class="result-message" id="resultMessage"></div>
+            <div class="controls">
+                <button class="btn" id="playAgain">Jogar Novamente</button>
+                <button class="btn" id="changeCategory">Mudar Categoria</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class QuizGame {
+            constructor() {
+                this.currentCategory = '';
+                this.questions = [];
+                this.currentQuestion = 0;
+                this.score = 0;
+                this.correctAnswers = 0;
+                this.totalQuestions = 10;
+                this.selectedAnswer = null;
+
+                // Base de perguntas por categoria
+                this.questionBank = {
+                    geral: [
+                        {
+                            question: "Qual é a capital do Brasil?",
+                            answers: ["Rio de Janeiro", "São Paulo", "Brasília", "Belo Horizonte"],
+                            correct: 2
+                        },
+                        {
+                            question: "Quem pintou a Mona Lisa?",
+                            answers: ["Van Gogh", "Picasso", "Leonardo da Vinci", "Michelangelo"],
+                            correct: 2
+                        },
+                        {
+                            question: "Qual é o maior oceano do mundo?",
+                            answers: ["Atlântico", "Índico", "Ártico", "Pacífico"],
+                            correct: 3
+                        },
+                        {
+                            question: "Em que ano o homem pisou na Lua pela primeira vez?",
+                            answers: ["1967", "1969", "1971", "1973"],
+                            correct: 1
+                        },
+                        {
+                            question: "Qual é o elemento químico representado pela letra O?",
+                            answers: ["Ouro", "Oxigênio", "Ósmio", "Ozônio"],
+                            correct: 1
+                        },
+                        {
+                            question: "Qual é a língua mais falada no mundo?",
+                            answers: ["Inglês", "Espanhol", "Mandarim", "Hindi"],
+                            correct: 2
+                        },
+                        {
+                            question: "Quantos continentes existem?",
+                            answers: ["5", "6", "7", "8"],
+                            correct: 2
+                        },
+                        {
+                            question: "Qual é a moeda do Japão?",
+                            answers: ["Yuan", "Won", "Yen", "Dong"],
+                            correct: 2
+                        },
+                        {
+                            question: "Quem escreveu 'Dom Casmurro'?",
+                            answers: ["Machado de Assis", "José de Alencar", "Clarice Lispector", "Carlos Drummond"],
+                            correct: 0
+                        },
+                        {
+                            question: "Qual é o planeta mais próximo do Sol?",
+                            answers: ["Vênus", "Terra", "Mercúrio", "Marte"],
+                            correct: 2
+                        },
+                        {
+                            question: "Em que país se encontra Machu Picchu?",
+                            answers: ["Brasil", "Peru", "Bolívia", "Chile"],
+                            correct: 1
+                        },
+                        {
+                            question: "Qual é o maior mamífero do mundo?",
+                            answers: ["Elefante africano", "Baleia azul", "Girafa", "Rinoceronte"],
+                            correct: 1
+                        },
+                        {
+                            question: "Qual é o maior planeta do Sistema Solar?",
+                            answers: ["Saturno", "Júpiter", "Netuno", "Urano"],
+                            correct: 1
+                        },
+                        {
+                            question: "Em que ano foi descoberto o Brasil?",
+                            answers: ["1498", "1500", "1502", "1504"],
+                            correct: 1
+                        },
+                        {
+                            question: "Qual é a capital da França?",
+                            answers: ["Lyon", "Marseille", "Paris", "Nice"],
+                            correct: 2
+                        },
+                        {
+                            question: "Quantos lados tem um hexágono?",
+                            answers: ["5", "6", "7", "8"],
+                            correct: 1
+                        },
+                        {
+                            question: "Qual é o rio mais longo do mundo?",
+                            answers: ["Amazonas", "Nilo", "Mississippi", "Yangtzé"],
+                            correct: 1
+                        },
+                        {
+                            question: "Em que cidade estão as pirâmides de Gizé?",
+                            answers: ["Alexandria", "Luxor", "Cairo", "Assuã"],
+                            correct: 2
+                        },
+                        {
+                            question: "Qual é o menor país do mundo?",
+                            answers: ["Vaticano", "Monaco", "Nauru", "San Marino"],
+                            correct: 0
+                        },
+                        {
+                            question: "Quantas cordas tem um violão tradicional?",
+                            answers: ["4", "5", "6", "7"],
+                            correct: 2
+                        },
+                        {
+                            question: "Qual é o gás mais abundante na atmosfera terrestre?",
+                            answers: ["Oxigênio", "Nitrogênio", "Gás carbônico", "Argônio"],
+                            correct: 1
+                        },
+                        {
+                            question: "Em que ano foi abolida a escravidão no Brasil?",
+                            answers: ["1887", "1888", "1889", "1890"],
+                            correct: 1
+                        },
+                        {
+                            question: "Qual é a capital da Argentina?",
+                            answers: ["Córdoba", "Mendoza", "Buenos Aires", "Rosário"],
+                            correct: 2
+                        },
+                        {
+                            question: "Quantos graus tem um ângulo reto?",
+                            answers: ["45°", "90°", "180°", "360°"],
+                            correct: 1
+                        },
+                        {
+                            question: "Qual é o processo de transformação da água líquida em vapor?",
+                            answers: ["Condensação", "Evaporação", "Sublimação", "Fusão"],
+                            correct: 1
+                        },
+                        {
+                            question: "Quantos anos tem um século?",
+                            answers: ["50", "100", "200", "1000"],
+                            correct: 1
+                        },
+                        {
+                            question: "Qual é a capital do Peru?",
+                            answers: ["Cusco", "Lima", "Arequipa", "Trujillo"],
+                            correct: 1
+                        },
+                        {
+                            question: "Qual é o órgão responsável pela produção de insulina?",
+                            answers: ["Fígado", "Rim", "Pâncreas", "Estômago"],
+                            correct: 2
+                        },
+                        {
+                            question: "Quantos fusos horários tem o Brasil?",
+                            answers: ["2", "3", "4", "5"],
+                            correct: 2
+                        },
+                        {
+                            question: "Qual é o animal terrestre mais rápido do mundo?",
+                            answers: ["Leão", "Guepardo", "Leopardo", "Cavalo"],
+                            correct: 1
+                        }
+                    ],
+                    ciencia: [
+                        {
+                            question: "Qual é a fórmula química da água?",
+                            answers: ["H2O", "CO2", "NaCl", "CH4"],
+                            correct: 0
+                        },
+                        {
+                            question: "Quantos ossos tem o corpo humano adulto?",
+                            answers: ["206", "208", "210", "212"],
+                            correct: 0
+                        },
+                        {
+                            question: "Qual é a velocidade da luz?",
+                            answers: ["300.000 km/s", "299.792.458 m/s", "150.000 km/s", "200.000 km/s"],
+                            correct: 1
+                        },
+                        {
+                            question: "Qual cientista desenvolveu a teoria da relatividade?",
+                            answers: ["Newton", "Einstein", "Galileu", "Darwin"],
+                            correct: 1
+                        },
+                        {
+                            question: "Qual é o gás mais abundante na atmosfera terrestre?",
+                            answers: ["Oxigênio", "Nitrogênio", "Dióxido de carbono", "Hélio"],
+                            correct: 1
+                        },
+                        {
+                            question: "Quantas câmaras tem o coração humano?",
+                            answers: ["2", "3", "4", "5"],
+                            correct: 2
+                        },
+                        {
+                            question: "Qual é a unidade de medida da resistência elétrica?",
+                            answers: ["Volt", "Ampere", "Ohm", "Watt"],
+                            correct: 2
+                        },
+                        {
+                            question: "Qual é o menor osso do corpo humano?",
+                            answers: ["Estribo", "Martelo", "Bigorna", "Fêmur"],
+                            correct: 0
+                        },
+                        {
+                            question: "Qual é o pH da água pura?",
+                            answers: ["6", "7", "8", "9"],
+                            correct: 1
+                        },
+                        {
+                            question: "Qual elemento químico tem símbolo Au?",
+                            answers: ["Prata", "Alumínio", "Ouro", "Arsênio"],
+                            correct: 2
+                        },
+                        {
+                            question: "Qual é a força responsável pela atração dos corpos à Terra?",
+                            answers: ["Magnetismo", "Gravidade", "Eletricidade", "Fricção"],
+                            correct: 1
+                        },
+                        {
+                            question: "Quantos pares de cromossomos tem o ser humano?",
+                            answers: ["21", "22", "23", "24"],
+                            correct: 2
+                        },
+                        {
+                            question: "Qual é o principal gás responsável pelo efeito estufa?",
+                            answers: ["Oxigênio", "Nitrogênio", "Dióxido de carbono", "Hidrogênio"],
+                            correct: 2
+                        },
+                        {
+                            question: "Em que camada da atmosfera se localiza a camada de ozônio?",
+                            answers: ["Troposfera", "Estratosfera", "Mesosfera", "Termosfera"],
+                            correct: 1
+                        },
+                        {
+                            question: "Qual é o maior órgão do corpo humano?",
+                            answers: ["Fígado", "Pulmão", "Coração", "Pele"],
+                            correct: 3
+                        },
+                        {
+                            question: "Qual partícula subatômica tem carga positiva?",
+                            answers: ["Elétron", "Nêutron", "Próton", "Pósitron"],
+                            correct: 2
+                        },
+                        {
+                            question: "Qual é o período de gestação de um elefante?",
+                            answers: ["12 meses", "18 meses", "22 meses", "24 meses"],
+                            correct: 2
+                        },
+                        {
+                            question: "Qual é a temperatura de ebulição da água ao nível do mar?",
+                            answers: ["90°C", "95°C", "100°C", "105°C"],
+                            correct: 2
+                        },
+                        {
+                            question: "Quantos dentes tem um adulto completo?",
+                            answers: ["28", "30", "32", "34"],
+                            correct: 2
+                        },
+                        {
+                            question: "Qual é o nome do processo de fotossíntese nas plantas?",
+                            answers: ["Respiração celular", "Fermentação", "Síntese proteica", "Fotossíntese"],
+                            correct: 3
+                        },
+                        {
+                            question: "Qual é a unidade de medida da frequência?",
+                            answers: ["Hertz", "Watt", "Joule", "Pascal"],
+                            correct: 0
+                        },
+                        {
+                            question: "Qual planeta é conhecido como 'Planeta Vermelho'?",
+                            answers: ["Vênus", "Marte", "Júpiter", "Mercúrio"],
+                            correct: 1
+                        },
+                        {
+                            question: "Qual é a célula responsável pela defesa do organismo?",
+                            answers: ["Hemácia", "Plaqueta", "Leucócito", "Neurônio"],
+                            correct: 2
+                        },
+                        {
+                            question: "Qual é o componente principal do ar que respiramos?",
+                            answers: ["Oxigênio", "Nitrogênio", "Gás carbônico", "Vapor d'água"],
+                            correct: 1
+                        },
+                        {
+                            question: "Qual é a velocidade do som no ar?",
+                            answers: ["340 m/s", "300 m/s", "400 m/s", "500 m/s"],
+                            correct: 0
+                        },
+                        {
+                            question: "Qual é o nome do estudo dos terremotos?",
+                            answers: ["Geologia", "Sismologia", "Vulcanologia", "Meteorologia"],
+                            correct: 1
+                        },
+                        {
+                            question: "Quantas vértebras tem a coluna vertebral humana?",
+                            answers: ["31", "32", "33", "34"],
+                            correct: 2
+                        },
+                        {
+                            question: "Qual é o elemento mais abundante no universo?",
+                            answers: ["Oxigênio", "Carbono", "Hidrogênio", "Hélio"],
+                            correct: 2
+                        },
+                        {
+                            question: "Qual é a unidade de medida da energia?",
+                            answers: ["Watt", "Joule", "Newton", "Pascal"],
+                            correct: 1
+                        },
+                        {
+                            question: "Qual é o nome da galáxia onde está localizado o Sistema Solar?",
+                            answers: ["Andrômeda", "Via Láctea", "Grande Nuvem", "Centauro"],
+                            correct: 1
+                        }
+                    ],
+                    historia: [
+                        {
+                            question: "Em que ano começou a Segunda Guerra Mundial?",
+                            answers: ["1937", "1939", "1941", "1943"],
+                            correct: 1
+                        },
+                        {
+                            question: "Quem foi o primeiro presidente do Brasil?",
+                            answers: ["Getúlio Vargas", "Deodoro da Fonseca", "Floriano Peixoto", "Prudente de Morais"],
+                            correct: 1
+                        },
+                        {
+                            question: "Em que ano foi assinada a Lei Áurea?",
+                            answers: ["1886", "1887", "1888", "1889"],
+                            correct: 2
+                        },
+                        {
+                            question: "Qual civilização construiu Machu Picchu?",
+                            answers: ["Asteca", "Maia", "Inca", "Olmeca"],
+                            correct: 2
+                        },
+                        {
+                            question: "Em que ano caiu o Muro de Berlim?",
+                            answers: ["1987", "1988", "1989", "1990"],
+                            correct: 2
+                        },
+                        {
+                            question: "Quem foi conhecido como 'O Rei Sol'?",
+                            answers: ["Luís XIII", "Luís XIV", "Luís XV", "Luís XVI"],
+                            correct: 1
+                        },
+                        {
+                            question: "Em que batalha Napoleão foi definitivamente derrotado?",
+                            answers: ["Austerlitz", "Trafalgar", "Waterloo", "Leipzig"],
+                            correct: 2
+                        },
+                        {
+                            question: "Qual foi a primeira capital do Brasil?",
+                            answers: ["Rio de Janeiro", "Salvador", "São Paulo", "Recife"],
+                            correct: 1
+                        },
+                        {
+                            question: "Em que ano foi descoberto o Brasil?",
+                            answers: ["1498", "1500", "1502", "1504"],
+                            correct: 1
+                        },
+                        {
+                            question: "Quem liderou a Conjuração Mineira?",
+                            answers: ["Tiradentes", "Cláudio Manuel", "Tomás Gonzaga", "Álvares Maciel"],
+                            correct: 0
+                        },
+                        {
+                            question: "Em que ano terminou a Segunda Guerra Mundial?",
+                            answers: ["1944", "1945", "1946", "1947"],
+                            correct: 1
+                        },
+                        {
+                            question: "Qual imperador romano legalizou o cristianismo?",
+                            answers: ["Augusto", "Constantino", "Nero", "Trajano"],
+                            correct: 1
+                        },
+                        {
+                            question: "Em que século ocorreu a Revolução Industrial?",
+                            answers: ["XVII", "XVIII", "XIX", "XX"],
+                            correct: 1
+                        },
+                        {
+                            question: "Quem foi o líder da Revolução Cubana?",
+                            answers: ["Che Guevara", "Fidel Castro", "Camilo Cienfuegos", "Raúl Castro"],
+                            correct: 1
+                        },
+                        {
+                            question: "Em que ano foi proclamada a Independência do Brasil?",
+                            answers: ["1820", "1821", "1822", "1823"],
+                            correct: 2
+                        },
+                        {
+                            question: "Qual foi o período da ditadura militar no Brasil?",
+                            answers: ["1964-1985", "1965-1984", "1963-1985", "1964-1984"],
+                            correct: 0
+                        },
+                        {
+                            question: "Quem foi o primeiro homem a viajar ao espaço?",
+                            answers: ["Neil Armstrong", "Buzz Aldrin", "Yuri Gagarin", "John Glenn"],
+                            correct: 2
+                        },
+                        {
+                            question: "Em que ano ocorreu a Revolução Francesa?",
+                            answers: ["1789", "1790", "1791", "1792"],
+                            correct: 0
+                        },
+                        {
+                            question: "Qual país colonizou o Brasil?",
+                            answers: ["Espanha", "Portugal", "França", "Holanda"],
+                            correct: 1
+                        },
+                        {
+                            question: "Em que ano foi fundada Brasília?",
+                            answers: ["1956", "1958", "1960", "1962"],
+                            correct: 2
+                        },
+                        {
+                            question: "Quem foi o último imperador do Brasil?",
+                            answers: ["Dom Pedro I", "Dom Pedro II", "Dom João VI", "Dom Pedro III"],
+                            correct: 1
+                        },
+                        {
+                            question: "Em que guerra participou a FEB (Força Expedicionária Brasileira)?",
+                            answers: ["Primeira Guerra Mundial", "Segunda Guerra Mundial", "Guerra do Paraguai", "Guerra dos Canudos"],
+                            correct: 1
+                        },
+                        {
+                            question: "Qual foi o período do Estado Novo no Brasil?",
+                            answers: ["1930-1945", "1937-1945", "1935-1945", "1932-1945"],
+                            correct: 1
+                        },
+                        {
+                            question: "Em que ano foi assinada a Lei do Ventre Livre?",
+                            answers: ["1869", "1870", "1871", "1872"],
+                            correct: 2
+                        },
+                        {
+                            question: "Quem foi o primeiro presidente eleito após a ditadura militar?",
+                            answers: ["José Sarney", "Tancredo Neves", "Fernando Collor", "Itamar Franco"],
+                            correct: 1
+                        },
+                        {
+                            question: "Em que século viveu Leonardo da Vinci?",
+                            answers: ["XIV", "XV", "XVI", "XVII"],
+                            correct: 2
+                        },
+                        {
+                            question: "Qual foi a causa da Primeira Guerra Mundial?",
+                            answers: ["Invasão da Polônia", "Assassinato do Arquiduque Francisco Ferdinando", "Ataque a Pearl Harbor", "Crise de 1929"],
+                            correct: 1
+                        },
+                        {
+                            question: "Em que ano aconteceu a Proclamação da República no Brasil?",
+                            answers: ["1888", "1889", "1890", "1891"],
+                            correct: 1
+                        },
+                        {
+                            question: "Qual civilização construiu as pirâmides de Gizé?",
+                            answers: ["Babilônica", "Persa", "Egípcia", "Grega"],
+                            correct: 2
+                        },
+                        {
+                            question: "Em que ano foi criada a ONU?",
+                            answers: ["1944", "1945", "1946", "1947"],
+                            correct: 1
+                        }
+                    ],
+                    geografia: [
+                        {
+                            question: "Qual é o maior país do mundo em extensão territorial?",
+                            answers: ["Canadá", "China", "Estados Unidos", "Rússia"],
+                            correct: 3
+                        },
+                        {
+                            question: "Qual é a montanha mais alta do mundo?",
+                            answers: ["K2", "Everest", "Makalu", "Annapurna"],
+                            correct: 1
+                        },
+                        {
+                            question: "Qual é o rio mais longo do mundo?",
+                            answers: ["Amazonas", "Nilo", "Yang-Tsé", "Mississippi"],
+                            correct: 1
+                        },
+                        {
+                            question: "Em qual continente fica o deserto do Saara?",
+                            answers: ["Ásia", "África", "América", "Oceania"],
+                            correct: 1
+                        },
+                        {
+                            question: "Qual país tem mais fusos horários?",
+                            answers: ["Estados Unidos", "Rússia", "França", "China"],
+                            correct: 1
+                        },
+                        {
+                            question: "Qual é a capital da Austrália?",
+                            answers: ["Sydney", "Melbourne", "Canberra", "Perth"],
+                            correct: 2
+                        },
+                        {
+                            question: "Qual é o menor país do mundo?",
+                            answers: ["Monaco", "Vaticano", "Liechtenstein", "San Marino"],
+                            correct: 1
+                        },
+                        {
+                            question: "Em qual oceano fica a Fossa das Marianas?",
+                            answers: ["Atlântico", "Índico", "Pacífico", "Ártico"],
+                            correct: 2
+                        },
+                        {
+                            question: "Qual é a capital do Canadá?",
+                            answers: ["Toronto", "Vancouver", "Montreal", "Ottawa"],
+                            correct: 3
+                        },
+                        {
+                            question: "Quantos países fazem fronteira com o Brasil?",
+                            answers: ["8", "9", "10", "11"],
+                            correct: 2
+                        },
+                        {
+                            question: "Qual é a capital da África do Sul?",
+                            answers: ["Joanesburgo", "Cidade do Cabo", "Pretória", "Durban"],
+                            correct: 2
+                        },
+                        {
+                            question: "Em qual país está localizada a cidade de Petra?",
+                            answers: ["Egito", "Israel", "Jordânia", "Síria"],
+                            correct: 2
+                        },
+                        {
+                            question: "Qual é o ponto mais alto das Américas?",
+                            answers: ["Monte McKinley", "Aconcágua", "Monte Whitney", "Pico da Neblina"],
+                            correct: 1
+                        },
+                        {
+                            question: "Qual país é conhecido como 'Terra do Sol Nascente'?",
+                            answers: ["China", "Coreia do Sul", "Japão", "Tailândia"],
+                            correct: 2
+                        },
+                        {
+                            question: "Qual é o maior lago do mundo?",
+                            answers: ["Lago Superior", "Mar Cáspio", "Lago Vitória", "Lago Baikal"],
+                            correct: 1
+                        },
+                        {
+                            question: "Em qual continente fica a Cordilheira dos Andes?",
+                            answers: ["América do Norte", "América do Sul", "Ásia", "Europa"],
+                            correct: 1
+                        },
+                        {
+                            question: "Qual é a capital da Tailândia?",
+                            answers: ["Bangkok", "Chiang Mai", "Phuket", "Pattaya"],
+                            correct: 0
+                        },
+                        {
+                            question: "Qual país possui o maior número de ilhas?",
+                            answers: ["Filipinas", "Indonésia", "Finlândia", "Suécia"],
+                            correct: 2
+                        },
+                        {
+                            question: "Qual é o estreito que separa a Europa da Ásia?",
+                            answers: ["Bósforo", "Gibraltar", "Magalhães", "Ormuz"],
+                            correct: 0
+                        },
+                        {
+                            question: "Em qual país está localizado o Monte Kilimanjaro?",
+                            answers: ["Quênia", "Uganda", "Tanzânia", "Etiópia"],
+                            correct: 2
+                        },
+                        {
+                            question: "Qual é a capital da Mongólia?",
+                            answers: ["Ulaanbaatar", "Almaty", "Bishkek", "Astana"],
+                            correct: 0
+                        },
+                        {
+                            question: "Qual país tem a maior costa marítima do mundo?",
+                            answers: ["Rússia", "Austrália", "Estados Unidos", "Canadá"],
+                            correct: 3
+                        },
+                        {
+                            question: "Em qual país se localiza a região da Patagônia?",
+                            answers: ["Chile", "Argentina", "Uruguai", "Chile e Argentina"],
+                            correct: 3
+                        },
+                        {
+                            question: "Qual é o vulcão mais alto do mundo?",
+                            answers: ["Monte Fuji", "Vesúvio", "Ojos del Salado", "Kilimanjaro"],
+                            correct: 2
+                        },
+                        {
+                            question: "Qual é a capital de Madagascar?",
+                            answers: ["Antananarivo", "Toamasina", "Antsirabe", "Mahajanga"],
+                            correct: 0
+                        },
+                        {
+                            question: "Em qual país fica a região de Transilvânia?",
+                            answers: ["Hungria", "Sérvia", "Romênia", "Bulgária"],
+                            correct: 2
+                        },
+                        {
+                            question: "Qual é o maior arquipélago do mundo?",
+                            answers: ["Filipinas", "Indonésia", "Japão", "Grécia"],
+                            correct: 1
+                        },
+                        {
+                            question: "Qual país é atravessado pela Linha do Equador e pelo Meridiano de Greenwich?",
+                            answers: ["Brasil", "Equador", "Gabão", "Indonésia"],
+                            correct: 2
+                        },
+                        {
+                            question: "Qual é a capital do Cazaquistão?",
+                            answers: ["Almaty", "Nur-Sultan", "Shymkent", "Aktobe"],
+                            correct: 1
+                        },
+                        {
+                            question: "Em qual oceano estão as Ilhas Maldivas?",
+                            answers: ["Pacífico", "Atlântico", "Índico", "Ártico"],
+                            correct: 2
+                        }
+                    ],
+                    esportes: [
+                        {
+                            question: "Em que esporte Pelé se destacou?",
+                            answers: ["Basquete", "Futebol", "Vôlei", "Tênis"],
+                            correct: 1
+                        },
+                        {
+                            question: "Quantos jogadores há em cada time de futebol em campo?",
+                            answers: ["10", "11", "12", "13"],
+                            correct: 1
+                        },
+                        {
+                            question: "Em que ano foram realizadas as primeiras Olimpíadas modernas?",
+                            answers: ["1892", "1894", "1896", "1898"],
+                            correct: 2
+                        },
+                        {
+                            question: "Qual é a duração de uma partida de basquete na NBA?",
+                            answers: ["40 minutos", "45 minutos", "48 minutos", "50 minutos"],
+                            correct: 2
+                        },
+                        {
+                            question: "Em qual esporte se usa uma raquete e uma peteca?",
+                            answers: ["Tênis", "Squash", "Badminton", "Ping-pong"],
+                            correct: 2
+                        },
+                        {
+                            question: "Quantas medalhas de ouro Michael Phelps ganhou nas Olimpíadas?",
+                            answers: ["20", "21", "22", "23"],
+                            correct: 3
+                        },
+                        {
+                            question: "Qual país sediou a Copa do Mundo de 2018?",
+                            answers: ["Brasil", "Alemanha", "Rússia", "França"],
+                            correct: 2
+                        },
+                        {
+                            question: "Em que esporte Ayrton Senna se destacou?",
+                            answers: ["Motociclismo", "Fórmula 1", "Rally", "Kart"],
+                            correct: 1
+                        },
+                        {
+                            question: "Quantos sets são necessários para ganhar uma partida de vôlei?",
+                            answers: ["2", "3", "4", "5"],
+                            correct: 1
+                        },
+                        {
+                            question: "Qual é a pontuação máxima no boliche?",
+                            answers: ["250", "270", "290", "300"],
+                            correct: 3
+                        },
+                        {
+                            question: "Em que esporte se pratica o slam dunk?",
+                            answers: ["Vôlei", "Handebol", "Basquete", "Rugby"],
+                            correct: 2
+                        },
+                        {
+                            question: "Quantos jogadores compõem uma equipe de vôlei em quadra?",
+                            answers: ["5", "6", "7", "8"],
+                            correct: 1
+                        },
+                        {
+                            question: "Em que modalidade Muhammad Ali se destacou?",
+                            answers: ["Karatê", "Boxe", "MMA", "Kickboxing"],
+                            correct: 1
+                        },
+                        {
+                            question: "Qual é a distância de uma maratona?",
+                            answers: ["40,2 km", "41,2 km", "42,195 km", "43,2 km"],
+                            correct: 2
+                        },
+                        {
+                            question: "Em que esporte se usa o termo 'love'?",
+                            answers: ["Golf", "Tênis", "Críquete", "Squash"],
+                            correct: 1
+                        },
+                        {
+                            question: "Quantos tempos tem uma partida de futebol?",
+                            answers: ["1", "2", "3", "4"],
+                            correct: 1
+                        },
+                        {
+                            question: "Qual país ganhou a primeira Copa do Mundo?",
+                            answers: ["Brasil", "Argentina", "Uruguai", "Itália"],
+                            correct: 2
+                        },
+                        {
+                            question: "Em que esporte Usain Bolt se destacou?",
+                            answers: ["Salto em altura", "Atletismo - corrida", "Natação", "Ciclismo"],
+                            correct: 1
+                        },
+                        {
+                            question: "Quantos pontos vale um touchdown no futebol americano?",
+                            answers: ["3", "6", "7", "10"],
+                            correct: 1
+                        },
+                        {
+                            question: "Qual é o maior estádio de futebol do mundo?",
+                            answers: ["Maracanã", "Camp Nou", "Estádio Azteca", "Rungrado 1º de Maio"],
+                            correct: 3
+                        },
+                        {
+                            question: "Em que esporte se pratica o ace?",
+                            answers: ["Vôlei e Tênis", "Basquete", "Futebol", "Handebol"],
+                            correct: 0
+                        },
+                        {
+                            question: "Quantas medalhas de ouro o Brasil ganhou nas Olimpíadas de 2016?",
+                            answers: ["5", "6", "7", "8"],
+                            correct: 2
+                        },
+                        {
+                            question: "Em que esporte Guga se destacou?",
+                            answers: ["Futebol", "Vôlei", "Tênis", "Basquete"],
+                            correct: 2
+                        },
+                        {
+                            question: "Qual é a altura oficial de uma rede de vôlei masculino?",
+                            answers: ["2,40m", "2,43m", "2,45m", "2,50m"],
+                            correct: 1
+                        },
+                        {
+                            question: "Em que modalidade Rebeca Andrade conquistou medalhas olímpicas?",
+                            answers: ["Natação", "Atletismo", "Ginástica artística", "Judô"],
+                            correct: 2
+                        },
+                        {
+                            question: "Quantos Grand Slams existem no tênis?",
+                            answers: ["3", "4", "5", "6"],
+                            correct: 1
+                        },
+                        {
+                            question: "Em que esporte se usa stick?",
+                            answers: ["Hóquei", "Lacrosse", "Golf", "Todas as anteriores"],
+                            correct: 3
+                        },
+                        {
+                            question: "Qual seleção tem mais títulos mundiais de futebol?",
+                            answers: ["Argentina", "Alemanha", "Brasil", "Itália"],
+                            correct: 2
+                        },
+                        {
+                            question: "Em que ano o Brasil sediou a Copa do Mundo?",
+                            answers: ["2012", "2014", "2016", "2018"],
+                            correct: 1
+                        },
+                        {
+                            question: "Quantos jogadores há em uma equipe de basquete em quadra?",
+                            answers: ["4", "5", "6", "7"],
+                            correct: 1
+                        }
+                    ],
+                    informatica: [
+                        {
+                            question: "O que significa CPU?",
+                            answers: ["Central Processing Unit", "Computer Processing Unit", "Central Program Unit", "Computer Program Unit"],
+                            correct: 0
+                        },
+                        {
+                            question: "Qual é a função principal da RAM?",
+                            answers: ["Armazenamento permanente", "Processamento", "Armazenamento temporário", "Refrigeração"],
+                            correct: 2
+                        },
+                        {
+                            question: "O que é um SSD?",
+                            answers: ["Solid State Drive", "System Storage Device", "Super Speed Drive", "Standard Storage Disk"],
+                            correct: 0
+                        },
+                        {
+                            question: "Qual componente é responsável pelo processamento gráfico?",
+                            answers: ["CPU", "RAM", "GPU", "HD"],
+                            correct: 2
+                        },
+                        {
+                            question: "O que é a placa-mãe?",
+                            answers: ["Processador principal", "Componente que conecta todos os outros", "Memória principal", "Fonte de alimentação"],
+                            correct: 1
+                        },
+                        {
+                            question: "Qual é a função da fonte de alimentação?",
+                            answers: ["Processar dados", "Fornecer energia elétrica", "Armazenar dados", "Refrigerar componentes"],
+                            correct: 1
+                        },
+                        {
+                            question: "O que é ROM?",
+                            answers: ["Random Output Memory", "Read Only Memory", "Rapid Operation Mode", "Remote Output Module"],
+                            correct: 1
+                        },
+                        {
+                            question: "Qual é a diferença entre HDD e SSD?",
+                            answers: ["Tamanho", "Tecnologia de armazenamento", "Cor", "Marca"],
+                            correct: 1
+                        },
+                        {
+                            question: "O que é overclock?",
+                            answers: ["Diminuir velocidade", "Aumentar velocidade além do padrão", "Desligar componente", "Trocar peça"],
+                            correct: 1
+                        },
+                        {
+                            question: "Qual é a função do cooler?",
+                            answers: ["Acelerar processamento", "Refrigerar componentes", "Armazenar dados", "Conectar periféricos"],
+                            correct: 1
+                        },
+                        {
+                            question: "O que é cache do processador?",
+                            answers: ["Memória rápida interna", "Slot de expansão", "Conector externo", "Sistema operacional"],
+                            correct: 0
+                        },
+                        {
+                            question: "Quantos bits tem um byte?",
+                            answers: ["4", "6", "8", "10"],
+                            correct: 2
+                        },
+                        {
+                            question: "O que é BIOS?",
+                            answers: ["Sistema operacional", "Firmware básico", "Programa antivírus", "Editor de texto"],
+                            correct: 1
+                        },
+                        {
+                            question: "Qual é a velocidade padrão de uma porta USB 3.0?",
+                            answers: ["480 Mbps", "5 Gbps", "10 Gbps", "20 Gbps"],
+                            correct: 1
+                        },
+                        {
+                            question: "O que significa DDR em memórias RAM?",
+                            answers: ["Double Data Rate", "Direct Data Read", "Dynamic Data RAM", "Dual Drive Rate"],
+                            correct: 0
+                        },
+                        {
+                            question: "Qual conector é usado para monitores de alta resolução?",
+                            answers: ["VGA", "DVI", "HDMI", "Serial"],
+                            correct: 2
+                        },
+                        {
+                            question: "O que é dual core?",
+                            answers: ["Dois processadores", "Processador com dois núcleos", "Duas memórias", "Duas placas de vídeo"],
+                            correct: 1
+                        },
+                        {
+                            question: "Qual é a função de um slot PCI?",
+                            answers: ["Conectar memória", "Expansão de placas", "Conectar HD", "Ligar monitor"],
+                            correct: 1
+                        },
+                        {
+                            question: "O que é chipset?",
+                            answers: ["Processador", "Conjunto de chips da placa-mãe", "Memória", "Placa de vídeo"],
+                            correct: 1
+                        },
+                        {
+                            question: "Qual é a diferença entre 32 e 64 bits?",
+                            answers: ["Velocidade", "Arquitetura do processador", "Tamanho físico", "Cor"],
+                            correct: 1
+                        },
+                        {
+                            question: "O que é barramento?",
+                            answers: ["Cabo de rede", "Via de comunicação entre componentes", "Tipo de processador", "Modelo de HD"],
+                            correct: 1
+                        },
+                        {
+                            question: "Qual é a função da pasta térmica?",
+                            answers: ["Limpar componentes", "Melhorar transferência de calor", "Conectar cabos", "Acelerar processamento"],
+                            correct: 1
+                        },
+                        {
+                            question: "O que é socket do processador?",
+                            answers: ["Encaixe na placa-mãe", "Tipo de memória", "Cabo de dados", "Software"],
+                            correct: 0
+                        },
+                        {
+                            question: "Qual é a diferença entre SATA e IDE?",
+                            answers: ["Cor dos cabos", "Interface de conexão de HDs", "Tipo de processador", "Modelo de RAM"],
+                            correct: 1
+                        },
+                        {
+                            question: "O que é memória virtual?",
+                            answers: ["RAM extra", "Espaço no HD usado como RAM", "Memória da GPU", "Cache do processador"],
+                            correct: 1
+                        },
+                        {
+                            question: "Qual componente determina a compatibilidade de peças?",
+                            answers: ["HD", "RAM", "Placa-mãe", "Fonte"],
+                            correct: 2
+                        },
+                        {
+                            question: "O que é FSB?",
+                            answers: ["Front Side Bus", "Fast System Boot", "File System Basic", "Full Speed Buffer"],
+                            correct: 0
+                        },
+                        {
+                            question: "Qual é a função do gabinete?",
+                            answers: ["Processar dados", "Proteger e organizar componentes", "Armazenar arquivos", "Conectar internet"],
+                            correct: 1
+                        },
+                        {
+                            question: "O que é POST?",
+                            answers: ["Programa de email", "Teste inicial do sistema", "Tipo de processador", "Modelo de RAM"],
+                            correct: 1
+                        },
+                        {
+                            question: "Qual é a diferença entre RAM e VRAM?",
+                            answers: ["RAM é do sistema, VRAM é da placa de vídeo", "Não há diferença", "RAM é mais rápida", "VRAM é mais cara"],
+                            correct: 0
+                        }
+                    ]
+                };
+
+                this.setupEventListeners();
+                this.updateDisplay();
+            }
+
+            setupEventListeners() {
+                // Botões de categoria
+                document.querySelectorAll('.category-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+                        e.target.classList.add('active');
+                        this.currentCategory = e.target.dataset.category;
+                        document.getElementById('startQuiz').disabled = false;
+                    });
+                });
+
+                // Botão iniciar quiz
+                document.getElementById('startQuiz').addEventListener('click', () => {
+                    this.startQuiz();
+                });
+
+                // Botão próxima questão
+                document.getElementById('nextQuestion').addEventListener('click', () => {
+                    this.nextQuestion();
+                });
+
+                // Botões da tela de resultado
+                document.getElementById('playAgain').addEventListener('click', () => {
+                    this.resetQuiz();
+                });
+
+                document.getElementById('changeCategory').addEventListener('click', () => {
+                    this.showCategorySelection();
+                });
+            }
+
+            startQuiz() {
+                this.questions = this.shuffleArray([...this.questionBank[this.currentCategory]]).slice(0, this.totalQuestions);
+                this.currentQuestion = 0;
+                this.score = 0;
+                this.correctAnswers = 0;
+
+                document.getElementById('categorySelection').style.display = 'none';
+                document.getElementById('quizContainer').classList.add('active');
+                document.getElementById('resultScreen').classList.remove('active');
+
+                this.showQuestion();
+                this.updateDisplay();
+            }
+
+            showQuestion() {
+                const question = this.questions[this.currentQuestion];
+                document.getElementById('question').textContent = question.question;
+                document.getElementById('questionCounter').textContent = `Questão ${this.currentQuestion + 1} de ${this.totalQuestions}`;
+                
+                const answersContainer = document.getElementById('answers');
+                answersContainer.innerHTML = '';
+
+                question.answers.forEach((answer, index) => {
+                    const button = document.createElement('button');
+                    button.className = 'answer-btn';
+                    button.textContent = `${String.fromCharCode(65 + index)}. ${answer}`;
+                    button.addEventListener('click', () => this.selectAnswer(index));
+                    answersContainer.appendChild(button);
+                });
+
+                this.selectedAnswer = null;
+                document.getElementById('nextQuestion').disabled = true;
+
+                // Atualizar barra de progresso
+                const progress = ((this.currentQuestion + 1) / this.totalQuestions) * 100;
+                document.getElementById('progressFill').style.width = `${progress}%`;
+            }
+
+            selectAnswer(answerIndex) {
+                if (this.selectedAnswer !== null) return;
+
+                this.selectedAnswer = answerIndex;
+                const question = this.questions[this.currentQuestion];
+                const answerButtons = document.querySelectorAll('.answer-btn');
+
+                answerButtons.forEach((btn, index) => {
+                    btn.classList.add('disabled');
+                    if (index === question.correct) {
+                        btn.classList.add('correct');
+                    } else if (index === answerIndex && answerIndex !== question.correct) {
+                        btn.classList.add('incorrect');
+                    }
+                });
+
+                if (answerIndex === question.correct) {
+                    this.correctAnswers++;
+                    this.score += 10;
+                }
+
+                document.getElementById('nextQuestion').disabled = false;
+                this.updateDisplay();
+            }
+
+            nextQuestion() {
+                this.currentQuestion++;
+
+                if (this.currentQuestion < this.totalQuestions) {
+                    this.showQuestion();
+                } else {
+                    this.showResults();
+                }
+            }
+
+            showResults() {
+                document.getElementById('quizContainer').classList.remove('active');
+                document.getElementById('resultScreen').classList.add('active');
+
+                const percentage = (this.correctAnswers / this.totalQuestions) * 100;
+                const scoreElement = document.getElementById('finalScore');
+                const messageElement = document.getElementById('resultMessage');
+
+                scoreElement.textContent = `${this.correctAnswers}/${this.totalQuestions}`;
+
+                let message = '';
+                let scoreClass = '';
+
+                if (percentage >= 90) {
+                    message = 'Excelente! Você é um verdadeiro expert neste assunto! 🌟';
+                    scoreClass = 'excellent';
+                } else if (percentage >= 70) {
+                    message = 'Muito bom! Você tem um bom conhecimento sobre o tema! 👏';
+                    scoreClass = 'good';
+                } else if (percentage >= 50) {
+                    message = 'Razoável! Continue estudando para melhorar ainda mais! 📚';
+                    scoreClass = 'average';
+                } else {
+                    message = 'Que tal estudar um pouco mais sobre este assunto? Não desista! 💪';
+                    scoreClass = 'poor';
+                }
+
+                scoreElement.className = `score ${scoreClass}`;
+                messageElement.textContent = message;
+            }
+
+            resetQuiz() {
+                this.startQuiz();
+            }
+
+            showCategorySelection() {
+                document.getElementById('categorySelection').style.display = 'block';
+                document.getElementById('quizContainer').classList.remove('active');
+                document.getElementById('resultScreen').classList.remove('active');
+
+                document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove('active'));
+                document.getElementById('startQuiz').disabled = true;
+                this.currentCategory = '';
+            }
+
+            updateDisplay() {
+                document.getElementById('score').textContent = this.score;
+                document.getElementById('questionNumber').textContent = `${this.currentQuestion}/${this.totalQuestions}`;
+                document.getElementById('correctAnswers').textContent = this.correctAnswers;
+            }
+
+            shuffleArray(array) {
+                const shuffled = [...array];
+                for (let i = shuffled.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+                }
+                return shuffled;
+            }
+        }
+
+        // Inicializar jogo quando a página carregar
+        document.addEventListener('DOMContentLoaded', () => {
+            new QuizGame();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,365 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    background-image: url('../images/background.jpg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    color: #333;
+    transition: background-image 0.5s ease;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* Melhorar responsividade em dispositivos móveis */
+    -webkit-text-size-adjust: 100%;
+    -ms-text-size-adjust: 100%;
+    touch-action: manipulation;
+}
+
+.container {
+    width: 100%;
+    max-width: 1200px;
+    padding: 20px;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+h1 {
+    font-family: 'Orbitron', monospace;
+    font-weight: 900;
+    font-size: 3.5rem;
+    color: #00E5FF;
+    text-shadow: 
+        2px 2px 0 #0066CC,
+        4px 4px 0 #003366,
+        6px 6px 8px rgba(0, 229, 255, 0.3),
+        0 0 20px rgba(0, 229, 255, 0.5);
+    margin-bottom: 20px;
+    animation: bounce 2s infinite;
+    letter-spacing: 2px;
+}
+
+.theme-buttons {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.theme-buttons button {
+    padding: 12px 20px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    text-transform: uppercase;
+}
+
+.theme-buttons button:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+}
+
+#animais {
+    background-color: #1E3A8A;
+    color: #00FFFF;
+}
+
+#casa {
+    background-color: #065F46;
+    color: #00FF41;
+}
+
+#escola {
+    background-color: #7C3AED;
+    color: #E0E7FF;
+}
+
+#frutas {
+    background-color: #059669;
+    color: #ECFDF5;
+}
+
+#profissoes {
+    background-color: #1F2937;
+    color: #60A5FA;
+}
+
+.game-container {
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 20px;
+    padding: 30px;
+    width: 70%;
+    margin: 0 auto;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    transition: all 0.5s ease;
+}
+
+.word-display {
+    font-size: 2.5rem;
+    letter-spacing: 10px;
+    margin: 30px 0;
+    min-height: 60px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    color: #333;
+}
+
+.hangman-container {
+    margin: 20px 0;
+    position: relative;
+}
+
+.hangman-image {
+    height: 200px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    margin: 0 auto;
+}
+
+.message {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 2rem;
+    font-weight: bold;
+    color: #FF6B6B;
+    text-shadow: 2px 2px 0 white;
+}
+
+.keyboard {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    margin-top: 20px;
+}
+
+.keyboard-row {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+}
+
+.key {
+    width: 40px;
+    height: 40px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    border: none;
+    border-radius: 8px;
+    background-color: #1F2937;
+    color: #00FFFF;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 3px 0 #374151;
+    /* Melhorar responsividade em dispositivos móveis */
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: rgba(0, 255, 255, 0.3);
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    /* Garantir que o botão seja clicável em dispositivos touch */
+    min-width: 40px;
+    min-height: 40px;
+}
+
+.key:hover {
+    background-color: #374151;
+    transform: translateY(2px);
+    box-shadow: 0 1px 0 #374151;
+}
+
+.key:disabled {
+    background-color: #cccccc;
+    color: #666666;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+@keyframes bounce {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+@keyframes blink {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.3;
+    }
+}
+
+.lose-message {
+    animation: blink 1s infinite;
+}
+
+.win-message {
+    color: #A5DD9B;
+    font-size: 2.5rem;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-shadow: 2px 2px 0 #333;
+    animation: bounce 1s infinite;
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 10px;
+    }
+    
+    .game-container {
+        width: 95%;
+        padding: 15px;
+    }
+    
+    h1 {
+        font-size: 2rem;
+    }
+    
+    .theme-buttons {
+        gap: 8px;
+    }
+    
+    .theme-buttons button {
+        padding: 8px 16px;
+        font-size: 0.9rem;
+    }
+    
+    .word-display {
+        font-size: 1.5rem;
+        letter-spacing: 3px;
+        margin: 20px 0;
+    }
+    
+    .hangman-image {
+        height: 150px;
+    }
+    
+    .keyboard {
+        gap: 6px;
+        margin-top: 15px;
+    }
+    
+    .keyboard-row {
+        gap: 4px;
+    }
+    
+    .key {
+        width: 35px;
+        height: 35px;
+        font-size: 1rem;
+        border-radius: 6px;
+        /* Melhor responsividade ao toque */
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
+    }
+    
+    .message {
+        font-size: 1.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    h1 {
+        font-size: 1.5rem;
+        margin-bottom: 15px;
+    }
+    
+    .theme-buttons {
+        gap: 5px;
+    }
+    
+    .theme-buttons button {
+        padding: 6px 12px;
+        font-size: 0.8rem;
+    }
+    
+    .game-container {
+        width: 98%;
+        padding: 10px;
+    }
+    
+    .word-display {
+        font-size: 1.2rem;
+        letter-spacing: 2px;
+        margin: 15px 0;
+    }
+    
+    .hangman-image {
+        height: 120px;
+    }
+    
+    .keyboard {
+        gap: 4px;
+        margin-top: 10px;
+    }
+    
+    .keyboard-row {
+        gap: 3px;
+    }
+    
+    .key {
+        width: 30px;
+        height: 30px;
+        font-size: 0.9rem;
+        border-radius: 4px;
+        /* Otimização para telas pequenas */
+        min-width: 30px;
+        flex-shrink: 0;
+    }
+    
+    .message {
+        font-size: 1.2rem;
+    }
+}
+
+#nomes {
+    background-color: #0F172A;
+    color: #00FFFF;
+}
+
+/* Ajuste para espaços nos nomes */
+.word-display .letter {
+    margin: 0 5px;
+}
+
+#message {
+    position: absolute !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    width: 100% !important;
+    text-align: center !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}

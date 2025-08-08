@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jogo da Forca</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rubik+Maps&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Jogo da Forca</h1>
+            <div class="theme-buttons">
+                <button id="animais">Animais</button>
+                <button id="casa">Objetos de Casa</button>
+                <button id="escola">Escola</button>
+                <button id="frutas">Frutas</button>
+                <button id="profissoes">Profissões</button>
+                <button id="nomes">Nomes</button>
+            </div>
+        </header>
+
+        <main>
+            <div class="game-container">
+                <div class="word-display" id="word-display">Escolha o tema</div>
+                <div class="hangman-container">
+                    <div class="hangman-image" id="hangman-image"></div>
+                    <div class="message" id="message"></div>
+                </div>
+                <div class="keyboard" id="keyboard"></div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Elementos de áudio -->
+    <audio id="correctSound" src="sounds/teclacorreto.wav"></audio>
+    <audio id="wrongSound" src="sounds/teclaerro.wav"></audio>
+    <audio id="winSound" src="sounds/vitoriamp3.mp3"></audio>
+    <audio id="loseSound" src="sounds/gameoverflac.flac"></audio>
+
+    <script src="script/game.js"></script>
+</body>
+</html>

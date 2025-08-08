@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jogo da Memória</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-attachment: fixed;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 10px 20px 20px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            width: 100%;
+            text-align: center;
+        }
+
+        h1 {
+            color: white;
+            font-size: 3rem;
+            margin-bottom: 5px;
+            text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            background: linear-gradient(45deg, #fff, #f0f8ff, #e6e6fa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+        }
+
+        .game-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .info-item {
+            color: white;
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+
+        .info-value {
+            display: block;
+            font-size: 1.5rem;
+            color: #4CAF50;
+            margin-top: 5px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn-level {
+            background: linear-gradient(45deg, #2196F3, #1976D2);
+        }
+
+        .btn-level.active {
+            background: linear-gradient(45deg, #FF9800, #F57C00);
+            transform: translateY(-2px);
+        }
+
+        .game-board {
+            display: grid;
+            gap: 10px;
+            justify-content: center;
+            margin: 15px auto;
+            max-width: 100%;
+        }
+
+        .card {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(145deg, #f0f0f0, #d0d0d0);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Tamanhos específicos para cada nível */
+        .expert .card {
+            width: 60px;
+            height: 60px;
+        }
+
+        .master .card {
+            width: 50px;
+            height: 50px;
+        }
+
+        .expert .card::before {
+            font-size: 1.5rem;
+        }
+
+        .master .card::before {
+            font-size: 1.2rem;
+        }
+
+        .expert .card-content {
+            font-size: 1.5rem;
+        }
+
+        .master .card-content {
+            font-size: 1.2rem;
+        }
+
+        .card::before {
+            content: '?';
+            font-size: 2rem;
+            color: #666;
+            font-weight: bold;
+        }
+
+        .card.flipped::before {
+            content: '';
+        }
+
+        .card.flipped {
+            background: linear-gradient(145deg, #ffffff, #f0f0f0);
+            transform: rotateY(180deg);
+        }
+
+        .card.matched {
+            background: linear-gradient(145deg, #4CAF50, #45a049);
+            border-color: #4CAF50;
+            box-shadow: 0 0 20px rgba(76, 175, 80, 0.5);
+        }
+
+        .card.matched::before {
+            content: '';
+        }
+
+        .card-content {
+            font-size: 2rem;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .card.flipped .card-content,
+        .card.matched .card-content {
+            opacity: 1;
+        }
+
+        .victory-message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(145deg, #4CAF50, #45a049);
+            color: white;
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .victory-message.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .victory-message h2 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+        }
+
+        .victory-message p {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+        }
+
+        /* Níveis de dificuldade */
+        .easy { grid-template-columns: repeat(4, 1fr); }
+        .medium { grid-template-columns: repeat(6, 1fr); }
+        .hard { grid-template-columns: repeat(8, 1fr); }
+        .expert { grid-template-columns: repeat(10, 1fr); }
+        .master { grid-template-columns: repeat(12, 1fr); }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .card {
+                width: 60px;
+                height: 60px;
+            }
+            
+            .card::before {
+                font-size: 1.5rem;
+            }
+            
+            .card-content {
+                font-size: 1.5rem;
+            }
+            
+            .game-info {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .card {
+                width: 50px;
+                height: 50px;
+            }
+            
+            .card::before {
+                font-size: 1.2rem;
+            }
+            
+            .card-content {
+                font-size: 1.2rem;
+            }
+            
+            .easy { grid-template-columns: repeat(4, 1fr); }
+            .medium { grid-template-columns: repeat(4, 1fr); }
+            .hard { grid-template-columns: repeat(6, 1fr); }
+            .expert { grid-template-columns: repeat(8, 1fr); }
+            .master { grid-template-columns: repeat(10, 1fr); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎲 Jogo da Memória</h1>
+            <p class="subtitle">Encontre todos os pares de cartas!</p>
+        </header>
+
+        <div class="game-info">
+            <div class="info-item">
+                Movimentos
+                <span class="info-value" id="moves">0</span>
+            </div>
+            <div class="info-item">
+                Tempo
+                <span class="info-value" id="timer">00:00</span>
+            </div>
+            <div class="info-item">
+                Pares Encontrados
+                <span class="info-value" id="matches">0</span>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="btn btn-level active" data-level="easy">Fácil (4x4)</button>
+            <button class="btn btn-level" data-level="medium">Médio (6x6)</button>
+            <button class="btn btn-level" data-level="hard">Difícil (8x8)</button>
+            <button class="btn btn-level" data-level="expert">Expert (10x10)</button>
+            <button class="btn btn-level" data-level="master">Master (12x12)</button>
+            <button class="btn" id="newGame">Novo Jogo</button>
+        </div>
+
+        <div class="game-board easy" id="gameBoard"></div>
+    </div>
+
+    <div class="victory-message" id="victoryMessage">
+        <h2>🎉 Parabéns!</h2>
+        <p id="victoryText">Você encontrou todos os pares!</p>
+        <button class="btn" onclick="startNewGame()">Jogar Novamente</button>
+    </div>
+
+    <script>
+        class MemoryGame {
+            constructor() {
+                this.level = 'easy';
+                this.cards = [];
+                this.flippedCards = [];
+                this.matchedPairs = 0;
+                this.moves = 0;
+                this.startTime = null;
+                this.timerInterval = null;
+                this.isGameActive = false;
+                
+                this.levels = {
+                    easy: { size: 4, pairs: 8 },
+                    medium: { size: 6, pairs: 18 },
+                    hard: { size: 8, pairs: 32 },
+                    expert: { size: 10, pairs: 50 },
+                    master: { size: 12, pairs: 72 }
+                };
+                
+                // Emojis para as cartas
+                this.cardEmojis = [
+                    '🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐻', '🐼',
+                    '🐨', '🐯', '🦁', '🐮', '🐷', '🐸', '🐵', '🐔',
+                    '🦄', '🐝', '🐛', '🦋', '🐌', '🐞', '🐜', '🕷️',
+                    '🎈', '🎁', '🎂', '🎉', '🎊', '🎯', '🎲', '🎮',
+                    '⚽', '🏀', '🏈', '⚾', '🎾', '🏐', '🏓', '🏸',
+                    '🍎', '🍊', '🍋', '🍌', '🍉', '🍇', '🍓', '🫐',
+                    '🍑', '🍒', '🥝', '🍅', '🥥', '🥑', '🍆', '🥕',
+                    '🚗', '🚕', '🚙', '🚌', '🚎', '🏎️', '🚓', '🚑',
+                    '✈️', '🚁', '⛵', '🚢', '🚂', '🚃', '🚄', '🚅',
+                    '🏠', '🏡', '🏢', '🏣', '🏤', '🏥', '🏦', '🏨',
+                    '⭐', '🌟', '💫', '✨', '🌙', '☀️', '⛅', '🌈'
+                ];
+                
+                this.initializeGame();
+                this.setupEventListeners();
+            }
+            
+            initializeGame() {
+                this.createBoard();
+                this.updateDisplay();
+            }
+            
+            setupEventListeners() {
+                // Botões de nível
+                document.querySelectorAll('.btn-level').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        document.querySelectorAll('.btn-level').forEach(b => b.classList.remove('active'));
+                        e.target.classList.add('active');
+                        this.level = e.target.dataset.level;
+                        this.resetGame();
+                    });
+                });
+                
+                // Botão novo jogo
+                document.getElementById('newGame').addEventListener('click', () => {
+                    this.resetGame();
+                });
+            }
+            
+            createBoard() {
+                const board = document.getElementById('gameBoard');
+                const levelConfig = this.levels[this.level];
+                const totalCards = levelConfig.pairs * 2;
+                
+                // Limpar board
+                board.innerHTML = '';
+                board.className = `game-board ${this.level}`;
+                
+                // Selecionar emojis aleatórios
+                const selectedEmojis = this.shuffleArray([...this.cardEmojis]).slice(0, levelConfig.pairs);
+                const cardPairs = [...selectedEmojis, ...selectedEmojis];
+                this.cards = this.shuffleArray(cardPairs).map((emoji, index) => ({
+                    id: index,
+                    emoji: emoji,
+                    isFlipped: false,
+                    isMatched: false
+                }));
+                
+                // Criar elementos das cartas
+                this.cards.forEach(card => {
+                    const cardElement = document.createElement('div');
+                    cardElement.className = 'card';
+                    cardElement.dataset.cardId = card.id;
+                    cardElement.innerHTML = `<span class="card-content">${card.emoji}</span>`;
+                    
+                    cardElement.addEventListener('click', () => this.flipCard(card.id));
+                    board.appendChild(cardElement);
+                });
+            }
+            
+            flipCard(cardId) {
+                if (!this.isGameActive) {
+                    this.startGame();
+                }
+                
+                const card = this.cards.find(c => c.id === cardId);
+                const cardElement = document.querySelector(`[data-card-id="${cardId}"]`);
+                
+                // Verificar se pode virar a carta
+                if (card.isFlipped || card.isMatched || this.flippedCards.length >= 2) {
+                    return;
+                }
+                
+                // Virar carta
+                card.isFlipped = true;
+                cardElement.classList.add('flipped');
+                this.flippedCards.push(card);
+                
+                if (this.flippedCards.length === 2) {
+                    this.moves++;
+                    this.updateDisplay();
+                    this.checkMatch();
+                }
+            }
+            
+            checkMatch() {
+                const [card1, card2] = this.flippedCards;
+                
+                setTimeout(() => {
+                    if (card1.emoji === card2.emoji) {
+                        // Match encontrado
+                        card1.isMatched = true;
+                        card2.isMatched = true;
+                        
+                        const element1 = document.querySelector(`[data-card-id="${card1.id}"]`);
+                        const element2 = document.querySelector(`[data-card-id="${card2.id}"]`);
+                        
+                        element1.classList.add('matched');
+                        element2.classList.add('matched');
+                        
+                        this.matchedPairs++;
+                        this.updateDisplay();
+                        
+                        // Verificar vitória
+                        if (this.matchedPairs === this.levels[this.level].pairs) {
+                            this.gameWon();
+                        }
+                    } else {
+                        // Não é match - desvirar cartas
+                        card1.isFlipped = false;
+                        card2.isFlipped = false;
+                        
+                        const element1 = document.querySelector(`[data-card-id="${card1.id}"]`);
+                        const element2 = document.querySelector(`[data-card-id="${card2.id}"]`);
+                        
+                        element1.classList.remove('flipped');
+                        element2.classList.remove('flipped');
+                    }
+                    
+                    this.flippedCards = [];
+                }, 1000);
+            }
+            
+            startGame() {
+                this.isGameActive = true;
+                this.startTime = Date.now();
+                this.timerInterval = setInterval(() => {
+                    this.updateTimer();
+                }, 1000);
+            }
+            
+            updateTimer() {
+                if (!this.startTime) return;
+                
+                const elapsed = Math.floor((Date.now() - this.startTime) / 1000);
+                const minutes = Math.floor(elapsed / 60).toString().padStart(2, '0');
+                const seconds = (elapsed % 60).toString().padStart(2, '0');
+                
+                document.getElementById('timer').textContent = `${minutes}:${seconds}`;
+            }
+            
+            updateDisplay() {
+                document.getElementById('moves').textContent = this.moves;
+                document.getElementById('matches').textContent = this.matchedPairs;
+            }
+            
+            gameWon() {
+                this.isGameActive = false;
+                clearInterval(this.timerInterval);
+                
+                const finalTime = document.getElementById('timer').textContent;
+                const victoryText = `Você completou o jogo em ${this.moves} movimentos e ${finalTime}!`;
+                
+                document.getElementById('victoryText').textContent = victoryText;
+                document.getElementById('victoryMessage').classList.add('show');
+            }
+            
+            resetGame() {
+                this.isGameActive = false;
+                this.moves = 0;
+                this.matchedPairs = 0;
+                this.flippedCards = [];
+                this.startTime = null;
+                
+                if (this.timerInterval) {
+                    clearInterval(this.timerInterval);
+                }
+                
+                document.getElementById('timer').textContent = '00:00';
+                document.getElementById('victoryMessage').classList.remove('show');
+                
+                this.createBoard();
+                this.updateDisplay();
+            }
+            
+            shuffleArray(array) {
+                const shuffled = [...array];
+                for (let i = shuffled.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+                }
+                return shuffled;
+            }
+        }
+        
+        // Inicializar jogo
+        let game;
+        
+        function startNewGame() {
+            if (game) {
+                game.resetGame();
+            } else {
+                game = new MemoryGame();
+            }
+            document.getElementById('victoryMessage').classList.remove('show');
+        }
+        
+        // Iniciar quando a página carregar
+        document.addEventListener('DOMContentLoaded', () => {
+            game = new MemoryGame();
+        });
+    </script>
+</body>
+</html>
