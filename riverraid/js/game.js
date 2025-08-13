@@ -52,14 +52,47 @@ class RiverRaidGame {
         this.riverOffset = 0;
         this.riverWave = 0;
         
+        // Elementos de áudio
+        this.backgroundMusic = null;
+        this.shotSound = null;
+        this.explosionSound = null;
+        
         this.init();
     }
     
     init() {
+        this.setupAudio();
         this.setupEventListeners();
         this.generateInitialRiver();
         this.showScreen('menuScreen');
         this.gameLoop();
+    }
+    
+    setupAudio() {
+        try {
+            // Configurar áudio de fundo
+            this.backgroundMusic = document.getElementById('backgroundMusic');
+            if (this.backgroundMusic) {
+                this.backgroundMusic.volume = 0.3;
+                this.backgroundMusic.preload = 'auto';
+            }
+            
+            // Configurar som de tiro
+            this.shotSound = document.getElementById('shotSound');
+            if (this.shotSound) {
+                this.shotSound.volume = 0.5;
+                this.shotSound.preload = 'auto';
+            }
+            
+            // Configurar som de explosão
+            this.explosionSound = document.getElementById('explosionSound');
+            if (this.explosionSound) {
+                this.explosionSound.volume = 0.6;
+                this.explosionSound.preload = 'auto';
+            }
+        } catch (error) {
+            console.log('Erro ao configurar áudio:', error);
+        }
     }
     
     setupEventListeners() {
@@ -101,6 +134,16 @@ class RiverRaidGame {
         this.gameState = 'playing';
         this.resetGame();
         this.showScreen('gameScreen');
+        
+        // Iniciar música de fundo
+        try {
+            if (this.backgroundMusic) {
+                this.backgroundMusic.currentTime = 0;
+                this.backgroundMusic.play().catch(() => {});
+            }
+        } catch (error) {
+            console.log('Erro ao reproduzir música de fundo:', error);
+        }
     }
     
     resetGame() {
@@ -130,6 +173,15 @@ class RiverRaidGame {
         if (this.gameState === 'playing') {
             this.gameState = 'paused';
             this.showScreen('pauseScreen');
+            
+            // Pausar música de fundo
+            try {
+                if (this.backgroundMusic && !this.backgroundMusic.paused) {
+                    this.backgroundMusic.pause();
+                }
+            } catch (error) {
+                console.log('Erro ao pausar música:', error);
+            }
         }
     }
     
@@ -137,6 +189,15 @@ class RiverRaidGame {
         if (this.gameState === 'paused') {
             this.gameState = 'playing';
             this.showScreen('gameScreen');
+            
+            // Retomar música de fundo
+            try {
+                if (this.backgroundMusic && this.backgroundMusic.paused) {
+                    this.backgroundMusic.play().catch(() => {});
+                }
+            } catch (error) {
+                console.log('Erro ao retomar música:', error);
+            }
         }
     }
     
@@ -145,6 +206,16 @@ class RiverRaidGame {
         this.saveScore();
         this.updateFinalStats();
         this.showScreen('gameOverScreen');
+        
+        // Parar música de fundo
+        try {
+            if (this.backgroundMusic && !this.backgroundMusic.paused) {
+                this.backgroundMusic.pause();
+                this.backgroundMusic.currentTime = 0;
+            }
+        } catch (error) {
+            console.log('Erro ao parar música:', error);
+        }
     }
     
     update() {
@@ -196,6 +267,16 @@ class RiverRaidGame {
             speed: 8,
             color: '#ffff00'
         });
+        
+        // Reproduzir som de tiro
+        try {
+            if (this.shotSound) {
+                this.shotSound.currentTime = 0;
+                this.shotSound.play().catch(() => {});
+            }
+        } catch (error) {
+            console.log('Erro ao reproduzir som de tiro:', error);
+        }
     }
     
     updatePlayer() {
@@ -472,6 +553,16 @@ class RiverRaidGame {
         });
         
         this.createParticles(x, y, '#ff0000');
+        
+        // Reproduzir som de explosão
+        try {
+            if (this.explosionSound) {
+                this.explosionSound.currentTime = 0;
+                this.explosionSound.play().catch(() => {});
+            }
+        } catch (error) {
+            console.log('Erro ao reproduzir som de explosão:', error);
+        }
     }
     
     createParticles(x, y, color) {
@@ -724,6 +815,16 @@ function showScores() {
 function backToMenu() {
     game.gameState = 'menu';
     game.showScreen('menuScreen');
+    
+    // Parar música de fundo
+    try {
+        if (game.backgroundMusic && !game.backgroundMusic.paused) {
+            game.backgroundMusic.pause();
+            game.backgroundMusic.currentTime = 0;
+        }
+    } catch (error) {
+        console.log('Erro ao parar música:', error);
+    }
 }
 
 function restartGame() {

@@ -34,8 +34,6 @@ class FroggerGame {
         // Arrays de objetos
         this.cars = [];
         this.logs = [];
-        this.turtles = [];
-        this.lilypads = [];
         this.particles = [];
         
         // Configurações das faixas
@@ -53,17 +51,57 @@ class FroggerGame {
         
         // Configurações de spawn
         this.carSpawnRate = 0.01;
-        this.logSpawnRate = 0.05; // Taxa muito alta para garantir troncos
-        this.turtleSpawnRate = 0.025; // Taxa alta para tartarugas
+        this.logSpawnRate = 0.08; // Aumentada para compensar a remoção das tartarugas
         this.gameTimer = null;
+        
+        // Controle de dificuldade dos troncos
+        this.currentLogWidth = 180; // Tamanho inicial dos troncos
+        
+        // Quadradinhos de chegada (como no Frogger original)
+        this.goalSlots = [
+            { x: 120, y: 30, width: 80, height: 60, occupied: false },
+            { x: 280, y: 30, width: 80, height: 60, occupied: false },
+            { x: 440, y: 30, width: 80, height: 60, occupied: false },
+            { x: 600, y: 30, width: 80, height: 60, occupied: false }
+        ];
+        this.completedSlots = 0;
+        
+        // Elementos de áudio
+        this.jumpSound = null;
+        this.backgroundSound = null;
         
         this.init();
     }
     
     init() {
+        this.setupAudio();
         this.setupEventListeners();
         this.showScreen('menuScreen');
         this.gameLoop();
+    }
+    
+    setupAudio() {
+        // Configurar áudios
+        this.jumpSound = document.getElementById('jumpSound');
+        this.backgroundSound = document.getElementById('backgroundSound');
+        
+        // Configurar volume
+        if (this.jumpSound) {
+            this.jumpSound.volume = 0.6; // Volume do pulo mais baixo
+        }
+        if (this.backgroundSound) {
+            this.backgroundSound.volume = 0.3; // Volume de fundo baixo
+        }
+    }
+    
+    // Controle de volume dos áudios
+    setAudioVolume(jumpVol = 0.6, backgroundVol = 0.3) {
+        if (this.jumpSound) {
+            this.jumpSound.volume = jumpVol;
+        }
+        if (this.backgroundSound) {
+            this.backgroundSound.volume = backgroundVol;
+        }
     }
     
     setupEventListeners() {
@@ -124,6 +162,14 @@ class FroggerGame {
         this.frog.x = x;
         this.frog.y = y;
         
+        // Tocar som de pulo
+        if (this.jumpSound) {
+            this.jumpSound.currentTime = 0; // Reiniciar o áudio
+            this.jumpSound.play().catch(() => {
+                console.log('Não foi possível reproduzir o som de pulo');
+            });
+        }
+        
         // Animação de salto
         setTimeout(() => {
             this.frog.isMoving = false;
@@ -141,6 +187,14 @@ class FroggerGame {
         this.resetGame();
         this.showScreen('gameScreen');
         this.startTimer();
+        
+        // Iniciar música de fundo
+        if (this.backgroundSound) {
+            this.backgroundSound.currentTime = 0;
+            this.backgroundSound.play().catch(() => {
+                console.log('Não foi possível reproduzir o áudio de fundo');
+            });
+        }
     }
     
     resetGame() {
@@ -150,16 +204,22 @@ class FroggerGame {
         this.timeLeft = this.maxTime;
         this.crossings = 0;
         
+        // Resetar tamanho dos troncos para o padrão
+        this.currentLogWidth = 180;
+        
+        // Resetar slots de chegada
+        this.goalSlots.forEach(slot => slot.occupied = false);
+        this.completedSlots = 0;
+        
         this.frog.x = this.gameWidth / 2 - 20;
         this.frog.y = this.frog.startY;
         this.frog.isMoving = false;
         
         this.cars = [];
         this.logs = [];
-        this.turtles = [];
         this.particles = [];
         
-        // Spawn troncos e tartarugas iniciais para garantir que existam
+        // Spawn troncos iniciais para garantir que existam
         this.spawnInitialWaterObjects();
         
         this.updateHUD();
@@ -181,6 +241,12 @@ class FroggerGame {
     pauseGame() {
         if (this.gameState === 'playing') {
             this.gameState = 'paused';
+            
+            // Pausar música de fundo
+            if (this.backgroundSound) {
+                this.backgroundSound.pause();
+            }
+            
             this.showScreen('pauseScreen');
         }
     }
@@ -188,6 +254,14 @@ class FroggerGame {
     resumeGame() {
         if (this.gameState === 'paused') {
             this.gameState = 'playing';
+            
+            // Retomar música de fundo
+            if (this.backgroundSound) {
+                this.backgroundSound.play().catch(() => {
+                    console.log('Não foi possível retomar o áudio de fundo');
+                });
+            }
+            
             this.showScreen('gameScreen');
         }
     }
@@ -195,16 +269,63 @@ class FroggerGame {
     gameOver() {
         this.gameState = 'gameOver';
         clearInterval(this.gameTimer);
+        
+        // Parar música de fundo
+        if (this.backgroundSound) {
+            this.backgroundSound.pause();
+        }
+        
         this.saveScore();
         this.updateFinalStats();
         this.showScreen('gameOverScreen');
     }
     
     checkGoal() {
-        // Verificar se chegou à meta
-        if (this.frog.y <= 60) {
-            this.levelComplete();
+        // Verificar se chegou à zona de meta
+        if (this.frog.y <= 90) {
+            // Verificar qual slot o sapinho está tentando ocupar
+            const frogCenter = { x: this.frog.x + this.frog.width / 2, y: this.frog.y + this.frog.height / 2 };
+            
+            for (let i = 0; i < this.goalSlots.length; i++) {
+                const slot = this.goalSlots[i];
+                
+                // Verificar se o sapinho está dentro do slot
+                if (frogCenter.x >= slot.x && frogCenter.x <= slot.x + slot.width &&
+                    frogCenter.y >= slot.y && frogCenter.y <= slot.y + slot.height) {
+                    
+                    if (!slot.occupied) {
+                        // Slot livre - sapinho conseguiu!
+                        slot.occupied = true;
+                        this.completedSlots++;
+                        this.score += 500; // Bonus por slot completado
+                        
+                        // Verificar se completou todos os slots
+                        if (this.completedSlots === 4) {
+                            this.levelComplete();
+                        } else {
+                            // Resetar sapinho para nova tentativa
+                            this.resetFrogPosition();
+                            this.score += 200; // Bonus adicional por slot
+                        }
+                        return;
+                    } else {
+                        // Slot já ocupado - sapinho morre
+                        this.loseLife();
+                        return;
+                    }
+                }
+            }
+            
+            // Se chegou na área de meta mas não em nenhum slot específico, morre
+            this.loseLife();
         }
+    }
+    
+    resetFrogPosition() {
+        this.frog.x = this.gameWidth / 2 - 20;
+        this.frog.y = this.frog.startY;
+        this.frog.isMoving = false;
+        this.timeLeft = this.maxTime; // Resetar tempo
     }
     
     levelComplete() {
@@ -214,12 +335,17 @@ class FroggerGame {
         // Pontuação bonus
         const timeBonus = this.timeLeft * 10;
         const levelBonus = this.level * 100;
-        this.score += 500 + timeBonus + levelBonus;
+        const slotsBonus = this.completedSlots * 200; // Bonus pelos slots completados
+        this.score += 1000 + timeBonus + levelBonus + slotsBonus;
         
         // Atualizar estatísticas da tela
         document.getElementById('completedLevel').textContent = this.level;
-        document.getElementById('bonusPoints').textContent = 500 + timeBonus + levelBonus;
+        document.getElementById('bonusPoints').textContent = 1000 + timeBonus + levelBonus + slotsBonus;
         document.getElementById('timeBonus').textContent = this.timeLeft + 's';
+        
+        // Resetar slots para o próximo nível
+        this.goalSlots.forEach(slot => slot.occupied = false);
+        this.completedSlots = 0;
         
         this.showScreen('levelCompleteScreen');
     }
@@ -228,24 +354,34 @@ class FroggerGame {
         this.level++;
         this.timeLeft = this.maxTime;
         
-        // Aumentar dificuldade mais gradualmente
+        // Aumentar dificuldade progressivamente
         this.lanes.forEach(lane => {
             if (lane.speed) {
-                lane.speed += 0.15; // Reduzido de 0.3 para 0.15
+                // Carros ficam mais rápidos a cada nível
+                lane.speed += 0.2 + (this.level * 0.1); // Aumenta mais conforme o nível
             }
         });
         
+        // Calcular novo tamanho dos troncos (diminui gradualmente)
+        const baseLogWidth = 180; // Tamanho inicial
+        const minLogWidth = 100;  // Tamanho mínimo
+        const widthReduction = Math.min(this.level * 8, 80); // Reduz 8px por nível, máximo 80px
+        this.currentLogWidth = Math.max(baseLogWidth - widthReduction, minLogWidth);
+        
+        console.log(`Nível ${this.level}: Troncos agora têm ${this.currentLogWidth}px de largura`);
+        
+        // Não resetar os slots - jogador mantém progresso do nível anterior
+        // this.goalSlots.forEach(slot => slot.occupied = false);
+        // this.completedSlots = 0;
+        
         // Resetar posição do sapinho
-        this.frog.x = this.gameWidth / 2 - 20;
-        this.frog.y = this.frog.startY;
-        this.frog.isMoving = false;
+        this.resetFrogPosition();
         
         // Limpar objetos
         this.cars = [];
         this.logs = [];
-        this.turtles = [];
         
-        // Respawnar objetos aquáticos iniciais
+        // Respawnar objetos aquáticos iniciais com novo tamanho
         this.spawnInitialWaterObjects();
         
         this.gameState = 'playing';
@@ -263,10 +399,7 @@ class FroggerGame {
         }
         
         // Resetar posição e tempo
-        this.frog.x = this.gameWidth / 2 - 20;
-        this.frog.y = this.frog.startY;
-        this.frog.isMoving = false;
-        this.timeLeft = this.maxTime;
+        this.resetFrogPosition();
         
         this.updateHUD();
     }
@@ -292,7 +425,6 @@ class FroggerGame {
         this.spawnObjects();
         this.updateCars();
         this.updateLogs();
-        this.updateTurtles();
         this.updateParticles();
         this.checkCollisions();
         this.updateHUD();
@@ -304,14 +436,9 @@ class FroggerGame {
             this.spawnCar();
         }
         
-        // Spawn troncos
-        if (Math.random() < this.logSpawnRate + (this.level * 0.001)) {
+        // Spawn troncos (aumentada a frequência)
+        if (Math.random() < this.logSpawnRate + (this.level * 0.002)) {
             this.spawnLog();
-        }
-        
-        // Spawn tartarugas
-        if (Math.random() < this.turtleSpawnRate + (this.level * 0.001)) {
-            this.spawnTurtle();
         }
     }
     
@@ -321,14 +448,14 @@ class FroggerGame {
         
         // Garantir cobertura total - spawn determinístico de troncos
         waterLanes.forEach((lane, laneIndex) => {
-            // Para cada faixa, criar troncos em posições fixas garantidas
-            const trunkPositions = [100, 300, 500, 700]; // Posições fixas
+            // Para cada faixa, criar mais troncos em posições estratégicas
+            const trunkPositions = [50, 200, 350, 500, 650]; // Mais troncos e melhor distribuição
             
             trunkPositions.forEach((basePos, i) => {
                 const log = {
                     x: lane.direction > 0 ? basePos : this.gameWidth - basePos,
-                    y: lane.y - 20,
-                    width: 160, // Troncos ainda maiores
+                    y: lane.y - 15, // Ajustado de -20 para -15 para melhor alinhamento
+                    width: this.currentLogWidth, // Usa o tamanho dinâmico dos troncos
                     height: 30,
                     speed: lane.speed * lane.direction,
                     color: '#8b4513',
@@ -336,28 +463,9 @@ class FroggerGame {
                 };
                 this.logs.push(log);
             });
-            
-            // Adicionar algumas tartarugas entre os troncos
-            const turtlePositions = [200, 400, 600];
-            turtlePositions.forEach((basePos, i) => {
-                if (Math.random() < 0.3) { // 30% chance de tartaruga
-                    const turtle = {
-                        x: lane.direction > 0 ? basePos : this.gameWidth - basePos,
-                        y: lane.y - 15,
-                        width: 80,
-                        height: 25,
-                        speed: lane.speed * lane.direction * 0.5, // Reduzido de 0.7 para 0.5
-                        color: '#006400',
-                        type: 'turtle',
-                        diving: false,
-                        diveTimer: Math.random() * 180 + 60 // Timer mais longo
-                    };
-                    this.turtles.push(turtle);
-                }
-            });
         });
         
-        console.log(`Spawned ${this.logs.length} logs and ${this.turtles.length} turtles initially`);
+        console.log(`Spawned ${this.logs.length} logs with ${this.currentLogWidth}px width`);
     }
     
     spawnCar() {
@@ -382,9 +490,9 @@ class FroggerGame {
         const lane = waterLanes[Math.floor(Math.random() * waterLanes.length)];
         
         const log = {
-            x: lane.direction > 0 ? -160 : this.gameWidth + 20,
-            y: lane.y - 20,
-            width: 160, // Tamanho consistente com os iniciais
+            x: lane.direction > 0 ? -this.currentLogWidth : this.gameWidth + 20,
+            y: lane.y - 15, // Ajustado de -20 para -15 para melhor alinhamento
+            width: this.currentLogWidth, // Usa o tamanho dinâmico dos troncos
             height: 30,
             speed: lane.speed * lane.direction,
             color: '#8b4513',
@@ -392,25 +500,6 @@ class FroggerGame {
         };
         
         this.logs.push(log);
-    }
-    
-    spawnTurtle() {
-        const waterLanes = this.lanes.filter(lane => lane.type === 'water');
-        const lane = waterLanes[Math.floor(Math.random() * waterLanes.length)];
-        
-        const turtle = {
-            x: lane.direction > 0 ? -80 : this.gameWidth + 20,
-            y: lane.y - 15,
-            width: 80, // Tamanho consistente com os iniciais
-            height: 25,
-            speed: lane.speed * lane.direction * 0.5, // Reduzido de 0.7 para 0.5
-            color: '#006400',
-            type: 'turtle',
-            diving: false,
-            diveTimer: 0
-        };
-        
-        this.turtles.push(turtle);
     }
     
     getRandomCarColor() {
@@ -446,32 +535,8 @@ class FroggerGame {
             }
             
             // Remover troncos que saíram da tela
-            if (log.x < -180 || log.x > this.gameWidth + 180) {
+            if (log.x < -(this.currentLogWidth + 50) || log.x > this.gameWidth + this.currentLogWidth + 50) {
                 this.logs.splice(i, 1);
-            }
-        }
-    }
-    
-    updateTurtles() {
-        for (let i = this.turtles.length - 1; i >= 0; i--) {
-            const turtle = this.turtles[i];
-            turtle.x += turtle.speed;
-            
-            // Sistema de mergulho das tartarugas (mais lento)
-            turtle.diveTimer++;
-            if (turtle.diveTimer > 300) { // Aumentado de 180 para 300 (5 segundos)
-                turtle.diving = !turtle.diving;
-                turtle.diveTimer = 0;
-            }
-            
-            // Mover sapinho junto com a tartaruga se não estiver mergulhando
-            if (this.isOnTurtle(turtle) && !turtle.diving) {
-                this.frog.x += turtle.speed;
-            }
-            
-            // Remover tartarugas que saíram da tela
-            if (turtle.x < -100 || turtle.x > this.gameWidth + 100) {
-                this.turtles.splice(i, 1);
             }
         }
     }
@@ -501,22 +566,13 @@ class FroggerGame {
                 }
             }
         } else if (frogLane.type === 'water') {
-            // Na água, verificar se está em cima de tronco ou tartaruga
+            // Na água, verificar se está em cima de tronco
             let onSafeObject = false;
             
             for (let log of this.logs) {
                 if (this.isOnLog(log)) {
                     onSafeObject = true;
                     break;
-                }
-            }
-            
-            if (!onSafeObject) {
-                for (let turtle of this.turtles) {
-                    if (this.isOnTurtle(turtle) && !turtle.diving) {
-                        onSafeObject = true;
-                        break;
-                    }
                 }
             }
             
@@ -529,7 +585,7 @@ class FroggerGame {
     
     getCurrentLane() {
         for (let lane of this.lanes) {
-            if (Math.abs(this.frog.y + this.frog.height / 2 - lane.y) < 30) {
+            if (Math.abs(this.frog.y + this.frog.height / 2 - lane.y) < 40) { // Aumentado de 30 para 40
                 return lane;
             }
         }
@@ -545,14 +601,59 @@ class FroggerGame {
     
     isOnLog(log) {
         const frogCenter = { x: this.frog.x + this.frog.width / 2, y: this.frog.y + this.frog.height / 2 };
-        return frogCenter.x >= log.x && frogCenter.x <= log.x + log.width &&
-               Math.abs(frogCenter.y - (log.y + log.height / 2)) < 25;
+        
+        // Verificação mais tolerante para X e Y
+        const isOnX = frogCenter.x >= (log.x - 10) && frogCenter.x <= (log.x + log.width + 10);
+        const isOnY = Math.abs(frogCenter.y - (log.y + log.height / 2)) < 35; // Aumentado de 25 para 35
+        
+        return isOnX && isOnY;
     }
     
-    isOnTurtle(turtle) {
-        const frogCenter = { x: this.frog.x + this.frog.width / 2, y: this.frog.y + this.frog.height / 2 };
-        return frogCenter.x >= turtle.x && frogCenter.x <= turtle.x + turtle.width &&
-               Math.abs(frogCenter.y - (turtle.y + turtle.height / 2)) < 25;
+    renderGoalSlots() {
+        this.goalSlots.forEach((slot, index) => {
+            if (slot.occupied) {
+                // Slot ocupado - mostrar sapinho
+                this.ctx.fillStyle = '#00ff00';
+                this.ctx.fillRect(slot.x + 15, slot.y + 10, 50, 40);
+                
+                // Cabeça do sapinho no slot
+                this.ctx.fillStyle = '#32cd32';
+                this.ctx.fillRect(slot.x + 20, slot.y + 5, 40, 25);
+                
+                // Olhos
+                this.ctx.fillStyle = '#ffffff';
+                this.ctx.beginPath();
+                this.ctx.arc(slot.x + 28, slot.y + 15, 3, 0, Math.PI * 2);
+                this.ctx.arc(slot.x + 52, slot.y + 15, 3, 0, Math.PI * 2);
+                this.ctx.fill();
+                
+                this.ctx.fillStyle = '#000000';
+                this.ctx.beginPath();
+                this.ctx.arc(slot.x + 28, slot.y + 15, 1.5, 0, Math.PI * 2);
+                this.ctx.arc(slot.x + 52, slot.y + 15, 1.5, 0, Math.PI * 2);
+                this.ctx.fill();
+                
+            } else {
+                // Slot vazio - mostrar casa/buraco
+                this.ctx.fillStyle = '#8b4513'; // Marrom escuro
+                this.ctx.fillRect(slot.x + 5, slot.y + 5, slot.width - 10, slot.height - 10);
+                
+                // Interior do slot (mais escuro)
+                this.ctx.fillStyle = '#654321';
+                this.ctx.fillRect(slot.x + 10, slot.y + 10, slot.width - 20, slot.height - 20);
+                
+                // Número do slot
+                this.ctx.fillStyle = '#ffffff';
+                this.ctx.font = '14px Courier New';
+                this.ctx.textAlign = 'center';
+                this.ctx.fillText((index + 1).toString(), slot.x + slot.width / 2, slot.y + slot.height / 2 + 5);
+            }
+            
+            // Borda do slot
+            this.ctx.strokeStyle = '#000000';
+            this.ctx.lineWidth = 2;
+            this.ctx.strokeRect(slot.x, slot.y, slot.width, slot.height);
+        });
     }
     
     render() {
@@ -562,11 +663,12 @@ class FroggerGame {
         
         if (this.gameState === 'playing') {
             this.renderLanes();
+            this.renderGoalSlots();
             this.renderCars();
             this.renderLogs();
-            this.renderTurtles();
             this.renderFrog();
             this.renderParticles();
+            // this.renderDifficultyInfo(); // Comentado para remover da tela
         }
     }
     
@@ -582,13 +684,15 @@ class FroggerGame {
             }
         }
         
-        // Linha de chegada
-        this.ctx.fillStyle = '#ffd700';
+        // Zona de chegada
+        this.ctx.fillStyle = '#228b22'; // Verde mais escuro para a base
         this.ctx.fillRect(0, 30, this.gameWidth, 60);
+        
+        // Título da zona de chegada
         this.ctx.fillStyle = '#000000';
-        this.ctx.font = '20px Courier New';
+        this.ctx.font = '16px Courier New';
         this.ctx.textAlign = 'center';
-        this.ctx.fillText('🏆 META 🏆', this.gameWidth / 2, 70);
+        this.ctx.fillText('� CHEGADA �', this.gameWidth / 2, 25);
     }
     
     renderCars() {
@@ -614,40 +718,30 @@ class FroggerGame {
             this.ctx.fillStyle = log.color;
             this.ctx.fillRect(log.x, log.y, log.width, log.height);
             
-            // Textura do tronco
+            // Textura do tronco melhorada
             this.ctx.strokeStyle = '#654321';
             this.ctx.lineWidth = 2;
-            for (let i = 0; i < 3; i++) {
+            for (let i = 0; i < 4; i++) {
                 this.ctx.beginPath();
-                this.ctx.moveTo(log.x, log.y + (i + 1) * log.height / 4);
-                this.ctx.lineTo(log.x + log.width, log.y + (i + 1) * log.height / 4);
+                this.ctx.moveTo(log.x, log.y + (i + 1) * log.height / 5);
+                this.ctx.lineTo(log.x + log.width, log.y + (i + 1) * log.height / 5);
                 this.ctx.stroke();
             }
-        }
-    }
-    
-    renderTurtles() {
-        for (let turtle of this.turtles) {
-            if (!turtle.diving) {
-                this.ctx.fillStyle = turtle.color;
-                this.ctx.fillRect(turtle.x, turtle.y, turtle.width, turtle.height);
-                
-                // Casco da tartaruga
-                this.ctx.fillStyle = '#228b22';
-                this.ctx.fillRect(turtle.x + 5, turtle.y - 5, turtle.width - 10, turtle.height);
-                
-                // Cabeça
-                this.ctx.fillStyle = turtle.color;
-                this.ctx.fillRect(turtle.x + turtle.width - 15, turtle.y + 2, 10, 8);
-            } else {
-                // Tartaruga mergulhando - bolhas
-                for (let i = 0; i < 3; i++) {
-                    this.ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
-                    this.ctx.beginPath();
-                    this.ctx.arc(turtle.x + 20 + i * 15, turtle.y + 5, 3, 0, Math.PI * 2);
-                    this.ctx.fill();
-                }
-            }
+            
+            // Círculos nas extremidades para mostrar que é um tronco
+            this.ctx.fillStyle = '#654321';
+            this.ctx.beginPath();
+            this.ctx.arc(log.x, log.y + log.height/2, log.height/2, 0, Math.PI * 2);
+            this.ctx.arc(log.x + log.width, log.y + log.height/2, log.height/2, 0, Math.PI * 2);
+            this.ctx.fill();
+            
+            // Detalhes dos anéis do tronco
+            this.ctx.strokeStyle = '#8b4513';
+            this.ctx.lineWidth = 1;
+            this.ctx.beginPath();
+            this.ctx.arc(log.x, log.y + log.height/2, log.height/3, 0, Math.PI * 2);
+            this.ctx.arc(log.x + log.width, log.y + log.height/2, log.height/3, 0, Math.PI * 2);
+            this.ctx.stroke();
         }
     }
     
@@ -696,6 +790,37 @@ class FroggerGame {
             this.ctx.fillRect(particle.x - particle.size / 2, particle.y - particle.size / 2, particle.size, particle.size);
         }
         this.ctx.globalAlpha = 1;
+    }
+    
+    renderDifficultyInfo() {
+        // Mostrar informações de dificuldade no canto superior direito
+        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+        this.ctx.fillRect(this.gameWidth - 220, 10, 210, 110);
+        
+        this.ctx.fillStyle = '#ffffff';
+        this.ctx.font = '14px Courier New';
+        this.ctx.textAlign = 'left';
+        
+        this.ctx.fillText(`Nível: ${this.level}`, this.gameWidth - 210, 30);
+        this.ctx.fillText(`Slots: ${this.completedSlots}/4`, this.gameWidth - 210, 50);
+        this.ctx.fillText(`Tamanho Troncos: ${this.currentLogWidth}px`, this.gameWidth - 210, 70);
+        
+        // Calcular velocidade média dos carros
+        const roadLanes = this.lanes.filter(lane => lane.type === 'road');
+        const avgSpeed = roadLanes.length > 0 ? 
+            (roadLanes.reduce((sum, lane) => sum + Math.abs(lane.speed), 0) / roadLanes.length).toFixed(1) : 
+            '0.0';
+        
+        this.ctx.fillText(`Vel. Carros: ${avgSpeed}x`, this.gameWidth - 210, 90);
+        this.ctx.fillText(`Dificuldade: ${this.getDifficultyLevel()}`, this.gameWidth - 210, 110);
+    }
+    
+    getDifficultyLevel() {
+        if (this.level <= 2) return 'Fácil';
+        if (this.level <= 5) return 'Normal';
+        if (this.level <= 8) return 'Difícil';
+        if (this.level <= 12) return 'Muito Difícil';
+        return 'Extremo';
     }
     
     updateHUD() {
@@ -788,6 +913,12 @@ function showScores() {
 
 function backToMenu() {
     game.gameState = 'menu';
+    
+    // Parar música de fundo
+    if (game.backgroundSound) {
+        game.backgroundSound.pause();
+    }
+    
     game.showScreen('menuScreen');
     clearInterval(game.gameTimer);
 }
