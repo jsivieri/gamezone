@@ -259,6 +259,26 @@
             font-weight: normal;
         }
 
+        .game-unavailable {
+            background: rgba(128, 128, 128, 0.2);
+            border-color: rgba(128, 128, 128, 0.5);
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .game-unavailable:hover {
+            transform: none;
+            box-shadow: none;
+            background: rgba(128, 128, 128, 0.2);
+        }
+
+        .game-unavailable .game-title::after {
+            content: " ⏳ Em desenvolvimento";
+            font-size: 0.8rem;
+            color: #888;
+            font-weight: normal;
+        }
+
         footer {
             text-align: center;
             padding: 20px 20px;
@@ -503,6 +523,24 @@
                 <span class="game-icon">🔴⚫</span>
                 <h3 class="game-title">Damas</h3>
                 <p class="game-description">O clássico jogo de estratégia em tabuleiro. Capture as peças do adversário e torne-se mestre das damas!</p>
+            </div>
+
+            <div class="game-card game-available" onclick="window.open('cruzadinha/index.html', '_blank')">
+                <span class="game-icon">🧩</span>
+                <h3 class="game-title">Cruzadinha</h3>
+                <p class="game-description">Resolva palavras cruzadas desafiadoras e teste seus conhecimentos em diversas categorias!</p>
+            </div>
+
+            <div class="game-card game-unavailable">
+                <span class="game-icon">⏳</span>
+                <h3 class="game-title">Aguarde</h3>
+                <p class="game-description">Em breve - Novos jogos clássicos chegando em nossa plataforma!</p>
+            </div>
+
+            <div class="game-card game-unavailable">
+                <span class="game-icon">⏳</span>
+                <h3 class="game-title">Em breve</h3>
+                <p class="game-description">Aguarde - Mais diversão está a caminho para você!</p>
             </div>
         </section>
     </div>

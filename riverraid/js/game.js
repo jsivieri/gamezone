@@ -22,10 +22,10 @@ class RiverRaidGame {
         
         // Player
         this.player = {
-            x: this.gameWidth / 2 - 15,
+            x: this.gameWidth / 2 - 30,
             y: this.gameHeight - 100,
-            width: 30,
-            height: 40,
+            width: 60,
+            height: 80,
             speed: 5,
             color: '#00ffff'
         };
@@ -56,6 +56,16 @@ class RiverRaidGame {
         this.backgroundMusic = null;
         this.shotSound = null;
         this.explosionSound = null;
+        
+        // Imagens
+        this.playerImage = new Image();
+        this.playerImage.src = 'images/aviao.png';
+        this.playerImageLoaded = false;
+        
+        // Carregar imagem do avião
+        this.playerImage.onload = () => {
+            this.playerImageLoaded = true;
+        };
         
         this.init();
     }
@@ -155,7 +165,7 @@ class RiverRaidGame {
         this.enemiesDestroyed = 0;
         this.distanceTraveled = 0;
         
-        this.player.x = this.gameWidth / 2 - 15;
+        this.player.x = this.gameWidth / 2 - 30;
         this.player.y = this.gameHeight - 100;
         
         this.bullets = [];
@@ -714,16 +724,22 @@ class RiverRaidGame {
     renderPlayer() {
         const { x, y, width, height } = this.player;
         
-        // Corpo da aeronave
-        this.ctx.fillStyle = this.player.color;
-        this.ctx.fillRect(x + width / 4, y, width / 2, height);
-        
-        // Asas
-        this.ctx.fillRect(x, y + height / 2, width, height / 4);
-        
-        // Cockpit
-        this.ctx.fillStyle = '#ffffff';
-        this.ctx.fillRect(x + width / 3, y + 5, width / 3, height / 4);
+        // Se a imagem estiver carregada, usar a imagem
+        if (this.playerImageLoaded) {
+            this.ctx.drawImage(this.playerImage, x, y, width, height);
+        } else {
+            // Fallback: desenhar formas geométricas se a imagem não carregar
+            // Corpo da aeronave
+            this.ctx.fillStyle = this.player.color;
+            this.ctx.fillRect(x + width / 4, y, width / 2, height);
+            
+            // Asas
+            this.ctx.fillRect(x, y + height / 2, width, height / 4);
+            
+            // Cockpit
+            this.ctx.fillStyle = '#ffffff';
+            this.ctx.fillRect(x + width / 3, y + 5, width / 3, height / 4);
+        }
     }
     
     updateHUD() {

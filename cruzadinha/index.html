@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cruzadinha - KMIKZ GameZone</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Partículas de fundo -->
+    <div class="particles" id="particles"></div>
+
+    <!-- Tela do Menu -->
+    <div class="screen active" id="menuScreen">
+        <div class="container">
+            <header>
+                <h1>🧩 Cruzadinha</h1>
+                <p class="subtitle">Teste seus conhecimentos com palavras cruzadas!</p>
+            </header>
+            
+            <div class="menu-options">
+                <button class="menu-btn" onclick="showDifficultyScreen()">
+                    🎯 Jogar
+                </button>
+                <button class="menu-btn" onclick="showInstructions()">
+                    📖 Como Jogar
+                </button>
+                <button class="menu-btn" onclick="showScores()">
+                    🏆 Recordes
+                </button>
+                <button class="menu-btn" onclick="backToMain()">
+                    🏠 Menu Principal
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tela de Dificuldade -->
+    <div class="screen" id="difficultyScreen">
+        <div class="container">
+            <header>
+                <h1>🎯 Escolha a Dificuldade</h1>
+            </header>
+            
+            <div class="difficulty-options">
+                <div class="difficulty-card available" onclick="showCategoryScreen('facil')">
+                    <span class="difficulty-icon">😊</span>
+                    <h3>Fácil</h3>
+                    <p>Grade 7x7<br>Palavras simples<br>Categorias temáticas</p>
+                </div>
+                
+                <div class="difficulty-card coming-soon" onclick="alert('Modo Difícil em desenvolvimento! Use APIs para questões avançadas.')">
+                    <span class="difficulty-icon">🤯</span>
+                    <h3>Difícil</h3>
+                    <p>Grade 12x12<br>Palavras complexas<br>IA & APIs</p>
+                    <span class="coming-soon-badge">Em breve</span>
+                </div>
+            </div>
+            
+            <button class="back-btn" onclick="showScreen('menuScreen')">⬅️ Voltar</button>
+        </div>
+    </div>
+
+    <!-- Tela de Categorias -->
+    <div class="screen" id="categoryScreen">
+        <div class="container">
+            <header>
+                <h1>📚 Escolha uma Categoria</h1>
+            </header>
+            
+            <div class="category-grid" id="categoryGrid">
+                <!-- Categorias serão preenchidas via JavaScript -->
+            </div>
+            
+            <button class="back-btn" onclick="showDifficultyScreen()">⬅️ Voltar</button>
+        </div>
+    </div>
+
+    <!-- Tela do Jogo -->
+    <div class="screen" id="gameScreen">
+        <div class="container">
+            <div class="game-header">
+                <div class="game-info">
+                    <span id="currentCategory">Categoria: Animais</span>
+                    <span id="gameTimer">⏱️ 10:00</span>
+                    <span id="gameScore">🏆 0 pts</span>
+                </div>
+                <button class="pause-btn" onclick="pauseGame()">⏸️ Pausar</button>
+            </div>
+            
+            <div class="game-content">
+                <div class="crossword-container">
+                    <div class="crossword-grid" id="crosswordGrid">
+                        <!-- Grade será gerada via JavaScript -->
+                    </div>
+                </div>
+                
+                <div class="clues-container">
+                    <div class="clues-section">
+                        <h3>➡️ Horizontais</h3>
+                        <div class="clues-list" id="horizontalClues">
+                            <!-- Dicas horizontais -->
+                        </div>
+                    </div>
+                    
+                    <div class="clues-section">
+                        <h3>⬇️ Verticais</h3>
+                        <div class="clues-list" id="verticalClues">
+                            <!-- Dicas verticais -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="game-controls">
+                <button class="control-btn" onclick="giveHint()">💡 Dica</button>
+                <button class="control-btn" onclick="checkAnswers()">✅ Verificar</button>
+                <button class="control-btn" onclick="clearGrid()">🗑️ Limpar</button>
+                <button class="control-btn" onclick="showScreen('menuScreen')">🏠 Menu</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tela de Instruções -->
+    <div class="screen" id="instructionsScreen">
+        <div class="container">
+            <header>
+                <h1>📖 Como Jogar</h1>
+            </header>
+            
+            <div class="instructions">
+                <div class="instruction-item">
+                    <span class="instruction-icon">🎯</span>
+                    <div>
+                        <h3>Objetivo</h3>
+                        <p>Preencha a grade com palavras usando as dicas fornecidas.</p>
+                    </div>
+                </div>
+                
+                <div class="instruction-item">
+                    <span class="instruction-icon">🖱️</span>
+                    <div>
+                        <h3>Como Jogar</h3>
+                        <p>Clique em uma célula numerada e digite a palavra correspondente à dica.</p>
+                    </div>
+                </div>
+                
+                <div class="instruction-item">
+                    <span class="instruction-icon">🧩</span>
+                    <div>
+                        <h3>Palavras Cruzadas</h3>
+                        <p>As palavras se cruzam nas letras em comum. Use isso como ajuda!</p>
+                    </div>
+                </div>
+                
+                <div class="instruction-item">
+                    <span class="instruction-icon">💡</span>
+                    <div>
+                        <h3>Dicas</h3>
+                        <p>Use o botão "Dica" para revelar a primeira letra de uma palavra.</p>
+                    </div>
+                </div>
+                
+                <div class="instruction-item">
+                    <span class="instruction-icon">🏆</span>
+                    <div>
+                        <h3>Pontuação</h3>
+                        <p>Ganhe pontos por cada palavra correta. Mais rápido = mais pontos!</p>
+                    </div>
+                </div>
+            </div>
+            
+            <button class="back-btn" onclick="showScreen('menuScreen')">⬅️ Voltar</button>
+        </div>
+    </div>
+
+    <!-- Tela de Recordes -->
+    <div class="screen" id="scoresScreen">
+        <div class="container">
+            <header>
+                <h1>🏆 Recordes</h1>
+            </header>
+            
+            <div class="scores-content">
+                <div class="scores-list" id="scoresList">
+                    <!-- Recordes serão preenchidos via JavaScript -->
+                </div>
+                
+                <button class="clear-scores-btn" onclick="clearScores()">🗑️ Limpar Recordes</button>
+            </div>
+            
+            <button class="back-btn" onclick="showScreen('menuScreen')">⬅️ Voltar</button>
+        </div>
+    </div>
+
+    <!-- Tela de Pausa -->
+    <div class="screen" id="pauseScreen">
+        <div class="container">
+            <header>
+                <h1>⏸️ Jogo Pausado</h1>
+            </header>
+            
+            <div class="pause-options">
+                <button class="menu-btn" onclick="resumeGame()">▶️ Continuar</button>
+                <button class="menu-btn" onclick="restartGame()">🔄 Reiniciar</button>
+                <button class="menu-btn" onclick="showScreen('menuScreen')">🏠 Menu Principal</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tela de Vitória -->
+    <div class="screen" id="victoryScreen">
+        <div class="container">
+            <header>
+                <h1>🎉 Parabéns!</h1>
+                <p class="victory-message">Você completou a cruzadinha!</p>
+            </header>
+            
+            <div class="victory-stats">
+                <div class="stat-item">
+                    <span class="stat-icon">🏆</span>
+                    <span class="stat-label">Pontuação:</span>
+                    <span class="stat-value" id="finalScore">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-icon">⏱️</span>
+                    <span class="stat-label">Tempo:</span>
+                    <span class="stat-value" id="finalTime">00:00</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-icon">📚</span>
+                    <span class="stat-label">Categoria:</span>
+                    <span class="stat-value" id="finalCategory">-</span>
+                </div>
+            </div>
+            
+            <div class="victory-options">
+                <button class="menu-btn" onclick="showCategoryScreen('facil')">🎯 Jogar Novamente</button>
+                <button class="menu-btn" onclick="showScreen('menuScreen')">🏠 Menu Principal</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/crosswords.js"></script>
+    <script src="js/game.js"></script>
+</body>
+</html>
